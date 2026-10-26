@@ -609,6 +609,7 @@ tr.cdet td{background:var(--surface)!important;padding:0!important;white-space:n
 .ghf label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;color:var(--muted);font-weight:600;flex:1;min-width:200px}
 .ghf input{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--surface);color:var(--ink)}
 .ghf input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.pubrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pubrow .btn{display:inline-flex;align-items:center;gap:6px}.pubrow .btn svg.ic{color:inherit;margin-right:2px}.ghbtn{background:#1f2937;color:#fff;padding:12px 20px;font-size:1rem}:root[data-theme="dark"] .ghbtn{background:#f1f5f9;color:#0f172a}
 .ghhelp{margin-top:10px}.ghhelp summary{cursor:pointer;font-weight:600;color:var(--accent)}.ghhelp ol{margin:6px 0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
 #ghmsg{margin-top:8px}
 @media (prefers-reduced-motion:no-preference){.bar i{transition:width .4s ease}}
@@ -1508,7 +1509,7 @@ var pending=null;
 function ghCfg(){var c={};try{c=JSON.parse(localStorage.getItem('kpi-gh')||'{}')}catch(e){}
   if(!c.repo&&/\.github\.io$/i.test(location.hostname)){var o=location.hostname.split('.')[0],seg=location.pathname.split('/').filter(Boolean)[0];c.repo=o+'/'+(seg&&!/\.html?$/i.test(seg)?seg:o+'.github.io')}return c}
 function ghPanel(){var c=ghCfg(),on=!!(c.repo&&c.token);
-  return'<div class="panel ghp"><div class="set-row"><div><b>'+ico('refresh-cw')+'Tự cập nhật lên GitHub</b><div class="hint">'+(on?'<span class="h-good">Đã bật</span> · kho <b>'+esc(c.repo)+'</b>. Bấm "Cập nhật lên GitHub" là trang tự đưa số mới lên, không cần tải file.':'Chưa bật. Nhập tên kho và mã truy cập (token) một lần, sau đó mỗi lần cập nhật chỉ cần bấm một nút.')+'</div></div>'+(on?'<button class="btn ghost" id="ghoff">'+ico('x','sm')+'Tắt</button>':'')+'</div>'+
+  return'<div class="panel ghp"><div class="set-row"><div><b>'+ico('refresh-cw')+'Tự cập nhật lên GitHub</b><div class="hint">'+(on?'<span class="h-good">Đã bật</span> · kho <b>'+esc(c.repo)+'</b>. Thả file xong bấm "Thả GitHub" là trang tự đưa số mới lên, không cần tải file.':'Chưa bật. Nhập tên kho và mã truy cập (token) một lần, sau đó mỗi lần cập nhật chỉ cần bấm một nút.')+'</div></div>'+(on?'<button class="btn ghost" id="ghoff">'+ico('x','sm')+'Tắt</button>':'')+'</div>'+
     (on?'':'<div class="ghf"><label>Kho GitHub<input id="ghrepo" placeholder="tentaikhoan/tenkho" value="'+esc(c.repo||'')+'"></label><label>Mã truy cập (token)<input id="ghtok" type="password" placeholder="github_pat_…" autocomplete="off"></label><button class="btn" id="ghsave">Lưu</button></div>'+
     '<details class="hint ghhelp"><summary>Cách tạo mã truy cập (làm 1 lần)</summary><ol><li>Vào github.com → ảnh đại diện → <b>Settings</b> → <b>Developer settings</b> → <b>Personal access tokens</b> → <b>Fine-grained tokens</b> → <b>Generate new token</b>.</li><li>Đặt tên, chọn thời hạn (ví dụ 1 năm). Mục <b>Repository access</b> chọn <b>Only select repositories</b> → chọn đúng kho dashboard.</li><li>Mục <b>Permissions → Repository permissions → Contents</b> chọn <b>Read and write</b>.</li><li>Bấm <b>Generate token</b>, sao chép mã (bắt đầu bằng github_pat_) dán vào ô trên rồi bấm Lưu.</li></ol>Mã chỉ lưu trong trình duyệt trên máy này, không nằm trong trang web, nhân viên không thấy được.</details>')+'<div id="ghmsg"></div></div>'}
 function ghApi(c,path,method,body){return fetch('https://api.github.com/repos/'+c.repo+path,{method:method||'GET',headers:{'Authorization':'Bearer '+c.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},body:body?JSON.stringify(body):undefined}).then(function(r){if(!r.ok)return r.text().then(function(t){var e=new Error('GitHub báo lỗi '+r.status+(r.status===401?' (mã truy cập sai hoặc hết hạn)':r.status===404?' (không thấy kho, hoặc mã chưa được cấp quyền cho kho này)':r.status===403?' (mã chưa có quyền Contents: Read and write)':''));e.status=r.status;throw e});return r.json()})}
@@ -1518,11 +1519,13 @@ function ghCommit(html,label){var c=ghCfg(),br,base;
    .then(function(cm){return b64(html).then(function(b){return ghApi(c,'/git/blobs','POST',{content:b,encoding:'base64'})}).then(function(bl){return ghApi(c,'/git/trees','POST',{base_tree:cm.tree.sha,tree:[{path:'index.html',mode:'100644',type:'blob',sha:bl.sha}]})})})
    .then(function(t){return ghApi(c,'/git/commits','POST',{message:'Cập nhật số liệu '+label,tree:t.sha,parents:[base]})}).then(function(nc){return ghApi(c,'/git/refs/heads/'+br,'PATCH',{sha:nc.sha})})}
 function vUpdate(){
-  var h='<div class="panel"><h2>Cập nhật dữ liệu</h2><p class="hint">'+(window.claude?'Chỉ người có quyền sửa trang mới thấy mục này. ':'Mục này chỉ hiện khi mở link có đuôi <b>#capnhat</b>. ')+'Thả file Excel xuất từ DMS: hằng ngày chỉ cần file <b>data doanh số</b>; đầu tháng thả thêm file <b>MCP (Visit Schedule)</b> và <b>Target</b>. Trang tự nhận loại file, tính lại 8 KPI, rồi '+(window.claude?'phát hành để cả đội cùng thấy':'tạo file index.html mới để anh đưa lên GitHub')+'.</p></div>'+
+  var h='<div class="panel"><h2>Cập nhật dữ liệu</h2><p class="hint">'+(window.claude?'Chỉ người có quyền sửa trang mới thấy mục này. ':'Mục này chỉ hiện khi mở link có đuôi <b>#capnhat</b>. ')+'Thả file Excel xuất từ DMS: hằng ngày chỉ cần file <b>data doanh số</b>; đầu tháng thả thêm file <b>MCP (Visit Schedule)</b> và <b>Target</b>. Trang tự nhận loại file, tính lại 8 KPI, rồi '+(window.claude?'phát hành để cả đội cùng thấy':'bấm <b>Thả GitHub</b> để đưa lên cho cả đội')+'.</p></div>'+
    (!inClaude?ghPanel():'')+'<label class="drop" id="drop" for="fin"><b>Chọn hoặc thả file .xlsx vào đây</b><br><span class="hint">Có thể chọn nhiều file cùng lúc</span><input type="file" id="fin" accept=".xlsx,.xls" multiple hidden></label><div id="upmsg"></div>';
   return h}
 function loadXLSX(){return new Promise(function(res,rej){if(window.XLSX)return res();var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=res;s.onerror=function(){rej(new Error('Không tải được thư viện đọc Excel'))};document.head.appendChild(s)})}
-function msg(cls,t){var m=document.getElementById('upmsg');if(m)m.innerHTML='<div class="msg s-'+cls+'">'+t+'</div>'}
+function msg(cls,t){var m=document.getElementById('upmsg');if(m){m.innerHTML='<div class="msg s-'+cls+'">'+t+'</div>';if(typeof drawIcons==='function')drawIcons()}}
+var lastRead='';
+function pubBtns(){return '<div class="pubrow">'+(inClaude?'<button class="btn" id="pub">Phát hành cho cả đội</button>':'<button class="btn ghbtn" id="pub">'+ico('cloud-upload')+'Thả GitHub</button><button class="btn ghost" id="pubdl">'+ico('download','sm')+'Tải file index.html</button>')+'</div>'}
 function handleFiles(list){
   if(!list||!list.length)return;msg('mid','Đang đọc '+list.length+' file…');
   loadXLSX().then(function(){return Promise.all([].map.call(list,function(f){return f.arrayBuffer().then(function(b){var wb=XLSX.read(b,{type:'array',cellDates:false});return{name:f.name,rows:XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:null})}})}))}).then(function(fs){
@@ -1540,7 +1543,8 @@ function handleFiles(list){
     var keep=Object.keys(st.hist).sort().reverse().slice(0,3);Object.keys(st.hist).forEach(function(k){if(keep.indexOf(k)<0)delete st.hist[k]});
     pending=st;var m2=KPI.buildModel(st);
     var lab={sales:'Doanh số',mcp:'MCP',target:'Target',kkm:'Chỉ tiêu Kokomi'};got.forEach(function(g){if(/^hist /.test(g))lab[g]='Doanh số tháng '+g.slice(10)+'/'+g.slice(5,9)});
-    msg('good','Đã đọc: '+got.map(function(g){return lab[g]+' ('+esc(st.files[g].name)+')'}).join(', ')+'. Số liệu đến '+dmy(m2.to)+', '+m2.reps.length+' ĐDKD, doanh số '+vnd(m2.reps.reduce(function(s,r){return s+r.k.turnover.a},0))+'.<br><br><button class="btn" id="pub">'+(inClaude?'Phát hành cho cả đội':ghCfg().token?'Cập nhật lên GitHub':'Tải file index.html mới')+'</button>');
+    lastRead='Đã đọc: '+got.map(function(g){return lab[g]+' ('+esc(st.files[g].name)+')'}).join(', ')+'. Số liệu đến '+dmy(m2.to)+', '+m2.reps.length+' ĐDKD, doanh số '+vnd(m2.reps.reduce(function(s,r){return s+r.k.turnover.a},0))+'.';
+    msg('good',lastRead+(inClaude?'':'<br>Anh xem lại số rồi bấm <b>Thả GitHub</b> để đưa lên cho cả đội.')+pubBtns());
   }).catch(function(e){msg('bad',esc(e.message||e))})}
 var inClaude=!!(window.claude&&claude.use);
 function buildDoc(st){
@@ -1551,10 +1555,12 @@ function buildDoc(st){
   return '<!doctype html><html lang="vi"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>'+(head?head.textContent:'')+'</style></head><body>'+body+'</body></html>'}
 function publish(){
   if(!pending)return;
-  if(!inClaude&&ghCfg().token){var bt=document.getElementById('pub');if(bt){bt.disabled=true;bt.textContent='Đang cập nhật lên GitHub…'}
+  if(!inClaude&&!ghCfg().token){msg('warn',lastRead+'<br><b>Máy này chưa có mã truy cập GitHub.</b> Anh nhập 1 lần ở khung <b>Tự cập nhật lên GitHub</b> phía trên (kho + mã) rồi bấm <b>Lưu</b>, sau đó bấm Thả GitHub lại.'+pubBtns());
+    var gp=document.querySelector('.ghp');if(gp){gp.scrollIntoView({behavior:'smooth',block:'center'});var ti=document.getElementById('ghtok');if(ti)setTimeout(function(){ti.focus()},400)}return}
+  if(!inClaude&&ghCfg().token){var bt=document.getElementById('pub');if(bt){bt.disabled=true;bt.textContent='Đang thả lên GitHub…'}
     var m3=KPI.buildModel(pending);
-    ghCommit(buildDoc(pending),'đến '+dmy(m3.to)).then(function(){msg('good','Đã cập nhật lên GitHub. Khoảng 1–2 phút sau nhân viên tải lại trang là thấy số liệu đến '+dmy(m3.to)+'.');if(bt){bt.textContent='Đã cập nhật'}})
-      .catch(function(e){msg('bad',esc(e.message||e)+'. Anh kiểm tra lại mục Tự cập nhật lên GitHub, hoặc bấm nút dưới để tải file thủ công.<br><br><button class="btn ghost" id="pubdl">Tải file index.html</button>');if(bt){bt.disabled=false;bt.textContent='Thử lại'}});return}
+    ghCommit(buildDoc(pending),'đến '+dmy(m3.to)).then(function(){msg('good','Đã thả lên GitHub. Khoảng 1–2 phút sau nhân viên tải lại trang là thấy số liệu đến '+dmy(m3.to)+'.');})
+      .catch(function(e){msg('bad',esc(e.message||e)+'. Anh kiểm tra lại mục Tự cập nhật lên GitHub, hoặc bấm Tải file index.html để đưa lên thủ công.'+pubBtns())});return}
   if(!inClaude){
     var blob=new Blob([buildDoc(pending)],{type:'text/html'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='index.html';document.body.appendChild(a);a.click();a.remove();
     msg('good','Đã tải về file <b>index.html</b> mới. Vào kho GitHub → <b>Add file → Upload files</b> → chọn file này → <b>Commit changes</b>. Khoảng 1 phút sau link sẽ hiện số liệu mới.');return}
@@ -1615,7 +1621,7 @@ document.addEventListener('click',function(e){var t=e.target.closest('#ghsave,#g
   if(t.id==='cfmore'){cf.lim+=100;return render()}
   if(t.id==='ghsave'){var rp=(document.getElementById('ghrepo').value||'').trim().replace(/^https?:\/\/github\.com\//,'').replace(/\/$/,''),tk=(document.getElementById('ghtok').value||'').trim(),gm=document.getElementById('ghmsg');
     if(!/^[\w.-]+\/[\w.-]+$/.test(rp)||!tk){gm.innerHTML='<div class="msg s-bad">Nhập đúng dạng tentaikhoan/tenkho và dán mã truy cập.</div>';return}
-    gm.innerHTML='<div class="msg s-mid">Đang kiểm tra…</div>';ghApi({repo:rp,token:tk},'').then(function(r){if(!r.permissions||!r.permissions.push)throw new Error('Mã này chưa có quyền ghi vào kho');try{localStorage.setItem('kpi-gh',JSON.stringify({repo:rp,token:tk}))}catch(e){}render()}).catch(function(e){gm.innerHTML='<div class="msg s-bad">'+esc(e.message)+'</div>'});return}
+    gm.innerHTML='<div class="msg s-mid">Đang kiểm tra…</div>';ghApi({repo:rp,token:tk},'').then(function(r){if(!r.permissions||!r.permissions.push)throw new Error('Mã này chưa có quyền ghi vào kho');try{localStorage.setItem('kpi-gh',JSON.stringify({repo:rp,token:tk}))}catch(e){}render();if(pending)msg('good',lastRead+'<br>Đã lưu mã GitHub. Bấm <b>Thả GitHub</b> để đưa số lên.'+pubBtns())}).catch(function(e){gm.innerHTML='<div class="msg s-bad">'+esc(e.message)+'</div>'});return}
   if(t.id==='ghoff'){try{localStorage.removeItem('kpi-gh')}catch(e){}return render()}
   if(t.id==='pubdl'){var bl2=new Blob([buildDoc(pending)],{type:'text/html'}),a2=document.createElement('a');a2.href=URL.createObjectURL(bl2);a2.download='index.html';document.body.appendChild(a2);a2.click();a2.remove();return}
   if(t.dataset.tex){var tx=ui.tex||(ui.tex={}),kx=t.dataset.tex;if(tx[kx]){Object.keys(tx).forEach(function(z){if(z===kx||z.indexOf(kx+'\u0001')===0)delete tx[z]})}else tx[kx]=1;return render()}
