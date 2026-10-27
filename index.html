@@ -1436,7 +1436,7 @@ function vOn(){
 /* ---------- Khách hàng (MCP) ---------- */
 var CUST=null,CUSTLIST=[];
 function custIndex(){if(CUST)return CUST;var by={},rep={};M.reps.forEach(function(r){rep[r.pos]=r;var s={b:{},a:{},f1:{},f2:{}};r.act.forEach(function(c){s.b[c]=1});r.covered.aso.forEach(function(c){s.a[c]=1});r.covered.f1.forEach(function(c){s.f1[c]=1});r.covered.f2.forEach(function(c){s.f2[c]=1});by[r.pos]=s});
-  CUST=STATE.mcp.outlets.filter(function(o){return rep[o[1]]}).map(function(o){var s=by[o[1]],r=rep[o[1]];return{code:o[0],pos:o[1],short:r.short,rep:r.name,ss:r.ss,name:o[2],ward:o[3],ch:o[4],f:o[5],sch:o[6],s3:o[7]*1000,ms:r.os?(r.os[o[0]]||0)*1000:null,ob:r.ob?(r.ob[o[0]]||[]):null,type:o[8],bought:!!s.b[o[0]],moq:!!s.a[o[0]],f1:!!s.f1[o[0]],f2:!!s.f2[o[0]]}});return CUST}
+  CUST=STATE.mcp.outlets.filter(function(o){return rep[o[1]]}).map(function(o){var s=by[o[1]],r=rep[o[1]];return{code:o[0],pos:o[1],short:r.short,rep:r.name,ss:r.ss,name:o[2],ward:o[3],ch:o[4],f:o[5],sch:o[6],s3:Math.round(o[7]*1000/3),ms:r.os?(r.os[o[0]]||0)*1000:null,ob:r.ob?(r.ob[o[0]]||[]):null,type:o[8],bought:!!s.b[o[0]],moq:!!s.a[o[0]],f1:!!s.f1[o[0]],f2:!!s.f2[o[0]]}});return CUST}
 function custDetail(x){
   if(!x.ob||!M.bd)return'<div class="cd-empty">'+ico('info','sm')+'Chưa có chi tiết theo Sub_div/Brand. Anh vào Cài đặt → Cập nhật dữ liệu, thả lại file data doanh số để trang tính phần này.</div>';
   if(!x.ob.length)return'<div class="cd-empty">'+ico('info','sm')+'Khách chưa có doanh số trong tháng '+M.month+'.</div>';
@@ -1468,7 +1468,7 @@ function vCust(){
     '<button class="btn shotbtn" id="cfshot">'+ico('camera')+'Chụp ảnh ('+int(list.length)+' KH)</button>'+
     '<label class="fsearch">'+ico('search','sm')+'<input id="cfq" type="search" placeholder="Tìm tên, mã KH, phường…" value="'+esc(c.q)+'" autocomplete="off"></label></div></div>';
   var ar=function(k){return c.sort===k?' ▼':''};
-  h+='<div class="tablewrap ctab"><table><thead><tr><th class="srt" data-cfsort="name">Khách hàng'+ar('name')+'</th><th>Phường/Xã</th><th>Kênh</th><th>Loại</th><th class="srt" data-cfsort="rep">ĐDKD'+ar('rep')+'</th><th>Lịch</th><th class="srt" data-cfsort="s3">DS TB 3T'+ar('s3')+'</th><th class="srt" data-cfsort="ms">Tháng này'+ar('ms')+'</th><th>Đơn MOQ</th><th>Tea 365</th><th>Homey Jeju</th></tr></thead><tbody>';
+  h+='<div class="tablewrap ctab"><table><thead><tr><th class="srt" data-cfsort="name">Khách hàng'+ar('name')+'</th><th>Phường/Xã</th><th>Kênh</th><th>Loại</th><th class="srt" data-cfsort="rep">ĐDKD'+ar('rep')+'</th><th>Lịch</th><th class="srt" data-cfsort="s3" title="Doanh số trung bình mỗi tháng của 3 tháng gần nhất (cột 3M sales trong file MCP chia 3)">DS TB 3T'+ar('s3')+'</th><th class="srt" data-cfsort="ms">Tháng này'+ar('ms')+'</th><th>Đơn MOQ</th><th>Tea 365</th><th>Homey Jeju</th></tr></thead><tbody>';
   var yes='<span class="dot ok">'+ico('check','sm')+'</span>',no='<span class="dot no">–</span>';
   list.slice(0,c.lim).forEach(function(x){var op=c.open===x.code;h+='<tr class="crow'+(op?' open':'')+'"><td><button class="cname" data-cfopen="'+x.code+'" aria-expanded="'+op+'">'+ico(op?'chevron-down':'chevron-right','sm')+'<span><b>'+esc(x.name)+'</b><small>'+x.code+'</small></span></button></td><td>'+esc(x.ward)+'</td><td><span class="tagc '+(x.ch==='ON'?'on':'off')+'">'+x.ch+'</span></td><td>'+esc(x.type||'')+'</td><td>'+x.short+' · '+esc(x.rep)+'</td><td>'+esc(x.sch||'—')+' · F'+x.f+'</td><td>'+vnd(x.s3)+'</td><td>'+(x.bought?'<span class="pill s-good msp">'+(x.ms!=null?vnd(x.ms):'Đã mua')+'</span>':'<span class="pill s-bad">Chưa mua</span>')+'</td><td class="c">'+(x.moq?yes:no)+'</td><td class="c">'+(x.f1?yes:no)+'</td><td class="c">'+(x.f2?yes:no)+'</td></tr>'+(op?'<tr class="cdet"><td colspan="11">'+custDetail(x)+'</td></tr>':'')});
   if(!list.length)h+='<tr><td colspan="11" class="empty">Không có khách nào khớp bộ lọc.</td></tr>';
@@ -1515,7 +1515,7 @@ function vRep(){
   var lst=mine.filter(defs[ui.olist][1]).sort(function(a,b){return b[7]-a[7]});
   h+='<div class="panel"><div class="sec-head"><h2>Khách cần ghé để gỡ KPI</h2><span class="hint">Sắp theo doanh số TB 3 tháng</span></div><div class="kpisel" style="margin:8px 0">'+
     Object.keys(defs).map(function(k){var c=mine.filter(defs[k][1]).length;return'<button class="chip" data-ol="'+k+'" aria-pressed="'+(ui.olist===k)+'">'+defs[k][0]+' ('+c+')</button>'}).join('')+'</div><div class="olist">';
-  lst.slice(0,ui.oLimit).forEach(function(o){h+='<div class="orow"><div><b>'+esc(o[2])+'</b><br><span>'+o[0]+' · '+esc(o[3])+' · '+o[4]+(o[8]?' · '+esc(o[8]):'')+'</span></div><div class="rt"><b>'+vnd(o[7]*1000)+'</b><br><span>Lịch '+esc(o[6]||'—')+' · F'+o[5]+'</span></div></div>'});
+  lst.slice(0,ui.oLimit).forEach(function(o){h+='<div class="orow"><div><b>'+esc(o[2])+'</b><br><span>'+o[0]+' · '+esc(o[3])+' · '+o[4]+(o[8]?' · '+esc(o[8]):'')+'</span></div><div class="rt"><b>'+vnd(o[7]*1000/3)+'</b><br><span>Lịch '+esc(o[6]||'—')+' · F'+o[5]+'</span></div></div>'});
   if(!lst.length)h+='<p class="hint">Đã phủ hết khách trong MCP.</p>';
   h+='</div>'+(lst.length>ui.oLimit?'<button class="more" id="more">Xem thêm ('+(lst.length-ui.oLimit)+')</button>':'')+'</div>';
   return h}
