@@ -988,10 +988,11 @@ function repsOf(ss){return M.reps.filter(function(r){return ss==='all'||r.ss===s
 
 /* Tiến độ = %TH ÷ %thời gian đã qua. ≥100% là đúng tiến độ */
 function pace(p){return TIME?p/TIME:0}
-function paceCls(p){var x=pace(p);return p>=1||x>=1?'good':x>=.9?'warn':'bad'}
+/* Màu theo tiến độ: đạt/vượt tiến độ = xanh · thấp hơn tiến độ ≤10 điểm % = vàng · còn lại = đỏ */
+function paceCls(p){return p>=1||(TIME&&p>=TIME-1e-9)?'good':TIME&&p>=TIME-.1?'warn':'bad'}
 function status(k,o){
-  if(KMAP[k].ratio){var t1=k==='lppc'?P.lppc1:P.meat;if(o.a>=o.t)return['good','Đạt'];if(o.a>=t1)return['mid','Mức 1'];return['bad','Chưa đạt']}
-  if(o.p>=1)return['good','Đạt'];var x=pace(o.p);if(x>=1)return['mid','Đúng tiến độ'];if(x>=.9)return['warn','Sát tiến độ'];return['bad','Chậm']}
+  if(KMAP[k].ratio){var t1=k==='lppc'?P.lppc1:P.meat;if(o.a>=o.t)return['good','Đạt'];if(o.a>=t1)return['warn','Mức 1'];return['bad','Chưa đạt']}
+  if(o.p>=1)return['good','Đạt'];var c=paceCls(o.p);return c==='good'?['good','Đúng tiến độ']:c==='warn'?['warn','Sát tiến độ']:['bad','Chậm']}
 function agg(list){
   var a={};KDEF.forEach(function(d){a[d.k]={a:0,t:0,lines:0,pc:0,hit:0}});
   list.forEach(function(r){KDEF.forEach(function(d){var o=r.k[d.k],x=a[d.k];if(d.ratio){x.lines+=o.lines;x.pc+=o.pc}else{x.a+=o.a;x.t+=o.t}if(status(d.k,o)[1]==='Đạt')x.hit++})});
@@ -1132,7 +1133,7 @@ function vKpi(){
     L.forEach(function(r){h+=row('<button class="lnk" data-rep="'+r.pos+'">'+esc(r.name)+'</button>',r.short+' · click xem cá nhân',r.k)});
   }
   h+='</tbody></table></div></div>';
-  h+='<div class="legend hint">Màu %TH: <span class="h-good">xanh lá</span> đạt hoặc đúng tiến độ · <span class="h-warn">cam</span> sát tiến độ · <span class="h-bad">đỏ</span> chậm. Còn lại: <span class="h-good">Đạt</span> khi TH ≥ CT, số đỏ là phần còn thiếu.'+(ui.kSS?'':' Bấm tên SS để xem từng ĐDKD.')+(ui.kSS?' Bấm tên ĐDKD để xem trang cá nhân.':'')+'</div>';
+  h+='<div class="legend hint">Màu %TH so với tiến độ chuẩn '+pct(TIME)+': <span class="h-good">xanh</span> đạt/vượt tiến độ · <span class="h-warn">vàng</span> thấp hơn tiến độ không quá 10% · <span class="h-bad">đỏ</span> chậm hơn 10% trở lên. LPPC, LPPC_Meat xét theo mức (không theo tiến độ). Còn lại: <span class="h-good">Đạt</span> khi TH ≥ CT, số đỏ là phần còn thiếu.'+(ui.kSS?'':' Bấm tên SS để xem từng ĐDKD.')+(ui.kSS?' Bấm tên ĐDKD để xem trang cá nhân.':'')+'</div>';
   return h}
 
 /* ---------- Chart.js (tooltip, nhãn số); nếu thư viện không tải được thì dùng biểu đồ SVG dự phòng ---------- */
@@ -1291,14 +1292,14 @@ function isAdmin(){return canEdit||(!window.claude&&location.hash==='#capnhat')}
 function money(n){return n?'<b class="bmoney">'+int(n)+'</b>':'<span class="bzero">0</span>'}
 function bCells(g,isAgg,n){var B=KPI.BONUS,h='';
   /* Kokomi */
-  var k=g.kkm,kp=isAgg?k.p:(k.t?k.a/k.t:0),kcls=!k.t?'':kp>=B.kkm.l2pct?'good':kp>=1?'mid':paceCls(kp);
+  var k=g.kkm,kp=isAgg?k.p:(k.t?k.a/k.t:0),kcls=!k.t?'':kp>=B.kkm.l2pct?'good':kp>=1?'good':paceCls(kp);
   h+='<td class="ct-v gst">'+(k.t?vnd(k.t):'—')+'</td><td>'+vnd(k.a)+'</td><td class="h-'+kcls+'">'+(k.t?pct(kp):'—')+'</td><td class="'+(k.t&&k.a<k.t?'rm-no':'rm-ok')+'">'+(!k.t?(isAgg?'':'Không có CT'):k.a>=k.t?(isAgg?'Đạt':(k.a>=(g.kkm.t2||Infinity)?'Mức 2':'Mức 1 · −'+int((g.kkm.t2||0)-k.a))):'−'+(k.t-k.a<1e5?((k.t-k.a)/1e6).toLocaleString('vi-VN',{maximumFractionDigits:2})+' tr':vnd(k.t-k.a)))+'</td><td class="gend">'+money(k.b)+(isAgg?'<small>'+k.n+'/'+n+' NV</small>':'')+'</td>';
   /* ASO */
   ['nmcc','xot'].forEach(function(key){var o=g[key],mk=B[key].minAso,ok=isAgg?false:o.a>=mk;
     h+='<td class="gst '+(isAgg?'':ok?'h-good':'h-bad')+'">'+int(o.a)+'</td><td class="'+(isAgg?(o.gap?'rm-no':'rm-ok'):ok?'rm-ok':'rm-no')+'">'+(isAgg?(o.gap?'−'+int(o.gap)+'<small>'+o.miss+'/'+n+' NV chưa đạt</small>':'Đạt mốc'):ok?'Đạt mốc':'−'+(mk-o.a))+'</td><td class="gend">'+money(o.b)+(isAgg?'<small>'+o.n+'/'+n+' NV</small>':'')+'</td>'});
   /* Meat condition */
   var m=g.meat,mp=isAgg?m.p:(m.t?m.a/m.t:0),lv=isAgg?null:m.lvl;
-  h+='<td class="ct-v gst">'+vnd(m.t)+'</td><td>'+vnd(m.a)+'</td><td class="h-'+(mp>=1.05?'good':mp>=1?'mid':paceCls(mp))+'">'+pct(mp)+'</td><td class="gend '+(isAgg?'':lv?'rm-ok':'rm-no')+'">'+(isAgg?(m.n2+m.n1)+'/'+n+' NV đạt':lv===2?'Mức 2':lv===1?'Mức 1':'Thiếu '+vnd(m.t-m.a))+'</td>';
+  h+='<td class="ct-v gst">'+vnd(m.t)+'</td><td>'+vnd(m.a)+'</td><td class="h-'+(mp>=1.05?'good':mp>=1?'good':paceCls(mp))+'">'+pct(mp)+'</td><td class="gend '+(isAgg?'':lv?'rm-ok':'rm-no')+'">'+(isAgg?(m.n2+m.n1)+'/'+n+' NV đạt':lv===2?'Mức 2':lv===1?'Mức 1':'Thiếu '+vnd(m.t-m.a))+'</td>';
   ['m1','m2','m3'].forEach(function(key){var o=g[key];h+='<td class="gst">'+vnd(o.a)+'</td><td class="gend">'+money(o.b)+(isAgg?'<small>'+o.n+'/'+n+' NV</small>':'')+'</td>'});
   return h}
 function vBonus(){
