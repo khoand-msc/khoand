@@ -625,6 +625,7 @@ tr.cdet td{background:var(--surface)!important;padding:0!important;white-space:n
 .ont td.rm-ok{color:var(--good);font-weight:700}.ont td.rm-no{color:var(--bad);font-weight:600}
 .ont tr.zero td{color:var(--faint)}
 tr.ondet>td{padding:10px 12px 12px 2.2em!important;background:var(--surface)!important;position:static!important;max-width:none!important;white-space:normal}
+.kbseg{align-self:flex-start;margin:14px 0 -4px}.kbseg button{padding:9px 18px;font-size:.92rem}.kbseg button[aria-pressed="true"]{color:var(--accent)}.kbseg svg.ic{color:inherit}
 .ovreps{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(210px,44vw),1fr));gap:8px;margin-top:10px}
 .ovrep{display:flex;flex-direction:column;gap:5px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 10px;cursor:pointer;font:inherit;color:inherit;min-width:0}
 .ovrep:hover{border-color:var(--accent)}
@@ -1026,9 +1027,9 @@ function renderHead(){
   document.getElementById('sub').textContent='Tháng '+M.month+'/'+M.year+' · số liệu đến hết '+dmy(M.to)+(f.sales&&f.sales.at?' · cập nhật '+new Date(f.sales.at).toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):'');
   document.getElementById('month').innerHTML='<span class="mpill">'+ico('gauge','sm')+'Tiến độ chuẩn <b>'+pct(TIME)+'</b></span><span class="mpill">'+ico('calendar','sm')+'Ngày công <b>'+M.elapsed+'/'+M.total+'</b></span>';
   if(ui.tab==='rules'||ui.tab==='update')ui.tab='settings';
-  var NAV=[{g:'Tổng quan',items:[['overview','Dashboard','layout-dashboard'],['kpi','KPIs lương','target'],['bonus','Thưởng','gift']]},{g:'Bán hàng',items:[['daily','Đơn hàng','shopping-bag'],['cust','Khách hàng','users-round'],['on','KH ON','coffee']]},{g:'Hệ thống',items:[['settings','Cài đặt','settings']]}];
-  var ok={};NAV.forEach(function(g){g.items.forEach(function(i){ok[i[0]]=1})});if(ui.tab!=='rep'&&!ok[ui.tab])ui.tab='overview';
-  var cur=ui.tab==='rep'?'kpi':ui.tab,lbl='';NAV.forEach(function(g){g.items.forEach(function(i){if(i[0]===cur)lbl=i[1]})});
+  var NAV=[{g:'Tổng quan',items:[['overview','Dashboard','layout-dashboard'],['kpi','KPIs & Thưởng','target']]},{g:'Bán hàng',items:[['daily','Đơn hàng','shopping-bag'],['cust','Khách hàng','users-round'],['on','KH ON','coffee']]},{g:'Hệ thống',items:[['settings','Cài đặt','settings']]}];
+  var ok={};NAV.forEach(function(g){g.items.forEach(function(i){ok[i[0]]=1})});if(ui.tab!=='rep'&&ui.tab!=='bonus'&&!ok[ui.tab])ui.tab='overview';
+  var cur=ui.tab==='rep'||ui.tab==='bonus'?'kpi':ui.tab,lbl='';NAV.forEach(function(g){g.items.forEach(function(i){if(i[0]===cur)lbl=i[1]})});
   document.getElementById('tbcrumb').innerHTML='NPP Phước Tài <span class="sep">/</span> <b>'+esc(lbl)+'</b>'+(ui.tab==='rep'?' <span class="sep">/</span> <b>Cá nhân</b>':'');
   document.getElementById('side').innerHTML='<div class="sb-brand"><span class="logo"><i data-lucide="store"></i></span><div><b>NPP PHƯỚC TÀI</b><small>Mix lẻ · KF0990</small></div></div>'+
     NAV.map(function(g){return'<div class="sb-g">'+g.g+'</div>'+g.items.map(function(i){return'<button class="sb-i" data-tab="'+i[0]+'" aria-current="'+(cur===i[0]?'page':'false')+'">'+ico(i[2])+'<span>'+i[1]+'</span></button>'}).join('')}).join('')+
@@ -1652,9 +1653,10 @@ function publish(){
 var ANIM=true;
 function render(){renderHead();setThemeBtn();var v=document.getElementById('view');
   document.body.classList.toggle('noscroll',(!!ui.focus&&(ui.tab==='kpi'||ui.tab==='bonus'))||(!!ui.dFocus&&ui.tab==='daily'));document.body.classList.toggle('wide',ui.tab==='kpi'||ui.tab==='daily');
-  var PH={overview:['Dashboard','Tổng quan doanh số, khách hàng và ngành hàng của NPP và 2 SS'],kpi:['KPIs lương','8 KPI theo công văn 21 · PC_BT điều chỉnh theo công văn 25 · NPP → SS → ĐDKD'],bonus:['Thưởng chương trình','Kokomi 90 · Nước mắm cao cấp · Xốt Chinsu · Thịt chế biến — số tạm tính'],on:['KH ON','Quầy kênh ON theo NPP → SS → ĐDKD · mục tiêu mở 30 ASO ở 7 loại hình trọng tâm · số liệu đến '+dmy(M.to)],daily:['Đơn hàng','Doanh số và số đơn theo ngày, cơ cấu ngành hàng và nhóm khách'],settings:['Cài đặt','Giao diện, cách tính và cập nhật dữ liệu']}[ui.tab];
+  var PH={overview:['Dashboard','Tổng quan doanh số, khách hàng và ngành hàng của NPP và 2 SS'],kpi:['KPIs & Thưởng','1. KPIs lương: 8 KPI theo công văn 21 · PC_BT điều chỉnh theo công văn 25 · NPP → SS → ĐDKD'],bonus:['KPIs & Thưởng','2. Thưởng chương trình: Kokomi 90 · Nước mắm cao cấp · Xốt Chinsu · Thịt chế biến — số tạm tính'],on:['KH ON','Quầy kênh ON theo NPP → SS → ĐDKD · mục tiêu mở 30 ASO ở 7 loại hình trọng tâm · số liệu đến '+dmy(M.to)],daily:['Đơn hàng','Doanh số và số đơn theo ngày, cơ cấu ngành hàng và nhóm khách'],settings:['Cài đặt','Giao diện, cách tính và cập nhật dữ liệu']}[ui.tab];
   var body=ui.tab==='bonus'?vBonus():ui.tab==='daily'?vDaily():ui.tab==='kpi'?vKpi():ui.tab==='rep'?vRep():ui.tab==='cust'?vCust():ui.tab==='on'?vOn():ui.tab==='settings'?vSettings():vOverview();
-  v.innerHTML=(PH?'<div class="pagehead"><div><h1 class="ph-t">'+PH[0]+'</h1><p class="ph-s">'+PH[1]+'</p></div></div>':'')+'<div class="vbody'+(ANIM?' anim':'')+'">'+body+'</div>';
+  var sub2=(ui.tab==='kpi'||ui.tab==='bonus')?'<div class="seg kbseg" role="tablist" aria-label="KPIs và Thưởng"><button role="tab" data-tab="kpi" aria-pressed="'+(ui.tab==='kpi')+'">'+ico('target','sm')+'1. KPIs</button><button role="tab" data-tab="bonus" aria-pressed="'+(ui.tab==='bonus')+'">'+ico('gift','sm')+'2. Thưởng</button></div>':'';
+  v.innerHTML=(PH?'<div class="pagehead"><div><h1 class="ph-t">'+PH[0]+'</h1><p class="ph-s">'+PH[1]+'</p></div></div>':'')+sub2+'<div class="vbody'+(ANIM?' anim':'')+'">'+body+'</div>';
   v.innerHTML+='<div class="foot">Mã POS là khóa chính · tên ĐDKD theo file doanh số mới nhất · '+M.reps.length+' ĐDKD Mix lẻ</div>';
   var fin=document.getElementById('fin');if(fin){fin.onchange=function(){handleFiles(fin.files)};var d=document.getElementById('drop');
     d.ondragover=function(e){e.preventDefault();d.classList.add('over')};d.ondragleave=function(){d.classList.remove('over')};d.ondrop=function(e){e.preventDefault();d.classList.remove('over');handleFiles(e.dataTransfer.files)}}
