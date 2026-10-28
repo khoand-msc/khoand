@@ -1180,7 +1180,8 @@ function vOverview(){
   var p1=function(x){return(x*100).toLocaleString('vi-VN',{maximumFractionDigits:1})+'%'},kc=function(x){return x>=.8?'good':x>=.7?'warn':'bad'};
   function cell(l,v,d,cls){return'<div class="mini"><div class="l">'+l+'</div><div class="v'+(cls?' h-'+cls:'')+'">'+v+'</div>'+(d?'<div class="d">'+d+'</div>':'')+'</div>'}
   var N=stats('all'),rp0=ui.ovSS!=='all'&&ui.ovRep?repsOf(ui.ovSS).filter(function(r){return r.pos===ui.ovRep})[0]:null;
-  var h=vKeyStats(ui.ovSS,rp0)+'<div class="ks-head s2"><span class="ks-num">2</span><h2>Doanh số · Khách hàng · Ngành hàng</h2></div><div class="ovtop">';
+  var KS=vKeyStats(ui.ovSS,rp0)+'<div class="ks-head s2"><span class="ks-num">2</span><h2>Doanh số theo ngành hàng</h2></div>';
+  var h='<div class="ovtop">';
   h+='<button class="panel ovnpp" data-ov="all" aria-pressed="'+(ui.ovSS==='all')+'">'+
     '<div class="ov-h"><div><div class="ov-t">'+ico('building-2')+'NPP Phước Tài</div><div class="hint">'+N.L.length+' ĐDKD · tiến độ chuẩn '+pct(TIME)+' · đến '+dmy(M.to)+'</div></div><div class="ov-big h-'+N.cls+'">'+p1(N.A.p)+'<small>% thực hiện</small></div></div>'+
     '<div class="ov-lbl">'+ico('banknote','sm')+'Doanh số</div><div class="minis">'+cell('Mục tiêu',vnd(N.A.t))+'<div class="mini"><div class="l">Thực hiện</div><div class="v">'+vnd(N.A.a)+'</div><div class="d">'+spark(wdSeries(N.L))+'</div></div>'+cell('Còn thiếu',vnd(Math.max(0,N.A.t-N.A.a)),'',N.A.a>=N.A.t?'good':'bad')+cell('Tiến độ',pct(pace(N.A.p)),'≥100% là đúng',N.cls)+'</div>'+
@@ -1211,7 +1212,8 @@ function vOverview(){
   if(path.length&&!aggLevel(L,path).length){path=[];ui.cat=[]}
   var cats=aggLevel(L,path),drill=path.length<2;
   var crumb='<div class="crumb"><button class="lnk" data-catlvl="0"'+(path.length?'':' aria-current="true"')+'>Tất cả Sub_div</button>'+path.map(function(p,i){return' › '+(i===path.length-1?'<b>'+esc(p)+'</b>':'<button class="lnk" data-catlvl="'+(i+1)+'">'+esc(p)+'</button>')}).join('')+'</div>';
-  h+='<div class="panel"><div class="sec-head"><h2>'+ico('layers')+'Doanh số theo '+lvl+' · '+(ui.ovSS==='all'?'Toàn NPP':esc(ssShort(ui.ovSS))+(rp?' › '+rp.short+' · '+esc(rp.name):''))+'</h2><span class="hint">'+(drill?'Bấm vào '+lvl+' để xem '+['Brand','DMS OBJ'][path.length]:'Cấp chi tiết nhất')+' · ASO = số khách đã mua · % trên '+int(mAll)+' KH MCP</span></div>'+crumb+catChart(cats,drill,mAll)+'</div>';
+  h=KS;
+  h+='<div class="panel"><div class="sec-head"><h2>'+ico('layers')+'Doanh số theo '+lvl+' · '+(ui.ovSS==='all'?'Toàn NPP':esc(teamName(ui.ovSS))+(rp?' › '+rp.short+' · '+esc(rp.name):''))+'</h2><span class="hint">'+(drill?'Bấm vào '+lvl+' để xem '+['Brand','DMS OBJ'][path.length]:'Cấp chi tiết nhất')+' · ASO = số khách đã mua · % trên '+int(mAll)+' KH MCP</span></div>'+crumb+catChart(cats,drill,mAll)+'</div>';
   h+=catTable(cats,drill,lvl,mAll,L,path);
   return h}
 
