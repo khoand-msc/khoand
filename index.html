@@ -626,7 +626,9 @@ tr.cdet td{background:var(--surface)!important;padding:0!important;white-space:n
 .ont tr.zero td{color:var(--faint)}
 tr.ondet>td{padding:10px 12px 12px 2.2em!important;background:var(--surface)!important;position:static!important;max-width:none!important;white-space:normal}
 .ksec{display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,color-mix(in srgb,var(--accent-soft) 55%,var(--surface)),var(--surface) 160px)}
-.ks-head{display:flex;align-items:center;gap:10px}.ks-head h2{font-size:1.15rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em}
+.ks-head{display:flex;align-items:center;gap:10px}.ksfbtn{margin-left:auto}
+.ksec.focus{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;gap:8px;background:var(--bg);padding:max(10px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px))}
+.ksec.focus .ks-grid{gap:8px}.ksec.focus .ks-band{padding:8px;gap:6px}.ksec.focus .ks-g{padding:8px 10px;gap:6px}.ks-head h2{font-size:1.15rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em}
 .ks-head.s2{margin-bottom:-6px}
 .ks-num{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--accent);color:#fff;font-weight:800}
 .ks-filter{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -1140,7 +1142,7 @@ function ksChan(z,c,label,std){var D=M.elapsed||1,G=[['all','ALL CAT','t-all'],[
 function vKeyStats(scopeSS,rp){
   var ss=ssList(),L=rp?[rp]:repsOf(scopeSS),z=ksData(L),A=z.A,D=M.elapsed||1,cls=paceCls(A.p);
   var who=rp?rp.short+' · '+esc(rp.name):scopeSS==='all'?'Toàn NPP':teamName(scopeSS)+' ('+z.n+' ĐDKD)';
-  var h='<div class="panel ksec"><div class="ks-head"><span class="ks-num">1</span><h2>Chỉ số chính</h2></div>';
+  var h='<div class="panel ksec'+(ui.ksFocus?' focus':'')+'"><div class="ks-head"><span class="ks-num">1</span><h2>Chỉ số chính</h2><button class="fbtn ksfbtn" id="ksfocus" aria-pressed="'+!!ui.ksFocus+'">'+(ui.ksFocus?ico('x')+'Thoát Focus':ico('maximize-2')+'Focus xem full')+'</button></div>';
   h+='<div class="ks-filter"><span class="flbl">Lọc:</span><button class="chip" data-ov="all" aria-pressed="'+(scopeSS==='all'&&!rp)+'">Tổng NPP</button>'+
     ss.slice().sort(function(a,b){return teamName(a).localeCompare(teamName(b),'vi')}).map(function(s){return'<button class="chip" data-ov="'+esc(s)+'" aria-pressed="'+(scopeSS===s&&!rp)+'">'+esc(teamName(s))+'</button>'}).join('')+
     '<label class="fsel">'+ico('user-round','sm')+'<select id="ksrep" aria-label="Chọn ĐDKD"><option value="">— Chọn ĐDKD ('+M.reps.length+') —</option>'+
@@ -1167,8 +1169,7 @@ function vKeyStats(scopeSS,rp){
       ksCard('OFF',dec(cOff?pOff/cOff*100:0,1)+'%',int(pOff)+' đơn / '+int(cOff)+' call',callC(pOff,cOff,KS_STD.call.OFF))+
       ksCard('ON',dec(cOn?pOn/cOn*100:0,1)+'%',int(pOn)+' đơn / '+int(cOn)+' call',callC(pOn,cOn,KS_STD.call.ON)),
       'Đơn có hàng MOQ = Y / số call theo MCP đến nay (call tháng × tiến độ '+dec(TIME*100,1)+'%) · chuẩn OFF 65%, ON 50%, Tổng '+dec(stdT*100,1)+'%','g-pc')+'</div>';
-  h+=ksChan(z,'both','Tổng kênh',true)+'<div class="ks-n">Chỉ tính dòng hàng MOQ = Y, bỏ hàng KM · Cả 2 kênh · ALL CAT = tất cả ngành hàng · -MEAT/BIA = bỏ dòng Processed Meats/Beer, chỉ tính đơn có hàng ngoài Meat/Bia · MEAT = chỉ dòng Processed Meats · PC/ngày/ĐDKD chuẩn 12 (Meat chưa có chuẩn) · LPPC chuẩn 4,5 / 4,7 / 3,8 · Giá trị BQ/đơn = doanh số trước CK của dòng MOQ / số đơn</div>';
-  h+=ksChan(z,'off','Kênh OFF',true)+ksChan(z,'on','Kênh ON',false)+'<div class="ks-n">Kênh theo L1 của khách trên đơn hàng · kênh ON chưa áp chuẩn PC/ngày và LPPC nên không tô màu</div>';
+  h+=ksChan(z,'both','Tổng kênh',true)+ksChan(z,'off','Kênh OFF',true)+'<div class="ks-n ks-foot">Chỉ tính dòng hàng MOQ = Y, bỏ hàng KM · Cả 2 kênh · ALL CAT = tất cả ngành hàng · -MEAT/BIA = bỏ dòng Processed Meats/Beer, chỉ tính đơn có hàng ngoài Meat/Bia · MEAT = chỉ dòng Processed Meats · PC/ngày/ĐDKD chuẩn 12 (Meat chưa có chuẩn) · LPPC chuẩn 4,5 / 4,7 / 3,8 · Giá trị BQ/đơn = doanh số trước CK của dòng MOQ / số đơn · Kênh OFF theo L1 của khách trên đơn hàng</div>';
   return h+'</div>'}
 function vOverview(){
   var ss=ssList();if(ui.ovSS!=='all'&&ss.indexOf(ui.ovSS)<0)ui.ovSS='all';
@@ -1736,7 +1737,7 @@ function publish(){
 /* ---------- render & events ---------- */
 var ANIM=true;
 function render(){renderHead();setThemeBtn();var v=document.getElementById('view');
-  document.body.classList.toggle('noscroll',(!!ui.focus&&(ui.tab==='kpi'||ui.tab==='bonus'))||(!!ui.dFocus&&ui.tab==='daily'));document.body.classList.toggle('wide',ui.tab==='kpi'||ui.tab==='daily');
+  document.body.classList.toggle('noscroll',(!!ui.ksFocus&&ui.tab==='overview')||(!!ui.focus&&(ui.tab==='kpi'||ui.tab==='bonus'))||(!!ui.dFocus&&ui.tab==='daily'));document.body.classList.toggle('wide',ui.tab==='kpi'||ui.tab==='daily');
   var PH={overview:['Dashboard','Tổng quan doanh số, khách hàng và ngành hàng của NPP và 2 SS'],kpi:['KPIs & Thưởng','1. KPIs lương: 8 KPI theo công văn 21 · PC_BT điều chỉnh theo công văn 25 · NPP → SS → ĐDKD'],bonus:['KPIs & Thưởng','2. Thưởng chương trình: Kokomi 90 · Nước mắm cao cấp · Xốt Chinsu · Thịt chế biến — số tạm tính'],on:['KH ON','Quầy kênh ON theo NPP → SS → ĐDKD · mục tiêu mở 30 ASO ở 7 loại hình trọng tâm · số liệu đến '+dmy(M.to)],daily:['Đơn hàng','Doanh số và số đơn theo ngày, cơ cấu ngành hàng và nhóm khách'],settings:['Cài đặt','Giao diện, cách tính và cập nhật dữ liệu']}[ui.tab];
   var body=ui.tab==='bonus'?vBonus():ui.tab==='daily'?vDaily():ui.tab==='kpi'?vKpi():ui.tab==='rep'?vRep():ui.tab==='cust'?vCust():ui.tab==='on'?vOn():ui.tab==='settings'?vSettings():vOverview();
   var sub2=(ui.tab==='kpi'||ui.tab==='bonus')?'<div class="seg kbseg" role="tablist" aria-label="KPIs và Thưởng"><button role="tab" data-tab="kpi" aria-pressed="'+(ui.tab==='kpi')+'">'+ico('target','sm')+'1. KPIs</button><button role="tab" data-tab="bonus" aria-pressed="'+(ui.tab==='bonus')+'">'+ico('gift','sm')+'2. Thưởng</button></div>':'';
@@ -1749,8 +1750,11 @@ function render(){renderHead();setThemeBtn();var v=document.getElementById('view
   var cq=document.getElementById('cfq');if(cq){cq.oninput=function(){clearTimeout(window._cqT);window._cqT=setTimeout(function(){ui.cf.q=cq.value;ui.cf.lim=100;render();var n=document.getElementById('cfq');if(n){n.focus();var L=n.value.length;try{n.setSelectionRange(L,L)}catch(e){}}},220)}}
   var dr=document.getElementById('drep');if(dr)dr.onchange=function(){ui.dRep=dr.value;render()};
   var sel=document.getElementById('repsel');if(sel)sel.onchange=function(){ui.rep=sel.value;ui.oLimit=25;save();render();top()};
-  drawIcons();fitDaily();mountCharts();fitKpi();save();ANIM=false}
+  drawIcons();fitDaily();mountCharts();fitKpi();fitKs();save();ANIM=false}
 /* thu nhỏ chữ bảng KPIs để vừa khít chiều ngang, tối thiểu 8,5px */
+function fitKs(){var el=document.querySelector('.ksec');if(!el)return;el.style.zoom='';if(!el.classList.contains('focus')||window.innerWidth<700)return;
+  var z=1;for(var i=0;i<8;i++){if(el.scrollHeight<=el.clientHeight+1&&el.scrollWidth<=el.clientWidth+1)break;z-=.05;el.style.zoom=z}}
+window.addEventListener('resize',function(){clearTimeout(window._ksT);window._ksT=setTimeout(fitKs,150)});
 function fitKpi(){var w=document.querySelector('.kt'),t=w&&w.querySelector('table');if(!t)return;var f=14;t.style.fontSize=f+'px';
   while(t.scrollWidth>w.clientWidth+1&&f>8.5){f-=.5;t.style.fontSize=f+'px'}
   /* tab Thưởng (máy tính): co tiếp để cả bảng ĐDKD nằm trong 1 màn hình, không phải cuộn */
@@ -1772,7 +1776,7 @@ function curTheme(){var t=document.documentElement.getAttribute('data-theme');if
 function setThemeBtn(){var b=document.getElementById('themebtn');if(!b)return;var d=curTheme()==='dark';b.innerHTML=ico(d?'sun':'moon')+'<span>'+(d?'Sáng':'Tối')+'</span>';b.setAttribute('aria-pressed',d)}
 (function(){try{var t=localStorage.getItem('kpi-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}})();
 function top(){try{window.scrollTo(0,0)}catch(e){}}
-document.addEventListener('click',function(e){var t=e.target.closest('[data-ovrep],[data-onss],[data-onssx],[data-onrep],#ghsave,#ghoff,#pubdl,[data-tex],[data-cfopen],#shotclose,#shotshare,#shotcopy,#shotsave,#cfshot,[data-cfday],[data-cfwk],[data-settheme],[data-cfss],[data-cfch],[data-cfst],[data-cfsort],#cfmore,#themebtn,[data-bss],[data-bs],#dfocus,[data-cat],[data-catlvl],[data-ks],[data-cs],#focusbtn,[data-tab],[data-ov],[data-dss],[data-kss],[data-rep],[data-ol],#more,#pub');if(!t)return;
+document.addEventListener('click',function(e){var t=e.target.closest('#ksfocus,[data-ovrep],[data-onss],[data-onssx],[data-onrep],#ghsave,#ghoff,#pubdl,[data-tex],[data-cfopen],#shotclose,#shotshare,#shotcopy,#shotsave,#cfshot,[data-cfday],[data-cfwk],[data-settheme],[data-cfss],[data-cfch],[data-cfst],[data-cfsort],#cfmore,#themebtn,[data-bss],[data-bs],#dfocus,[data-cat],[data-catlvl],[data-ks],[data-cs],#focusbtn,[data-tab],[data-ov],[data-dss],[data-kss],[data-rep],[data-ol],#more,#pub');if(!t)return;
   if(t.dataset.settheme){document.documentElement.setAttribute('data-theme',t.dataset.settheme);try{localStorage.setItem('kpi-theme',t.dataset.settheme)}catch(e){}return render()}
   var cf=ui.cf||(ui.cf={ss:'all',rep:'',ch:'all',st:'all',q:'',lim:100,sort:'s3',day:'all',wk:'all'});
   if(t.dataset.onss!=null){ui.onSS=t.dataset.onss;return render()}
@@ -1797,6 +1801,7 @@ document.addEventListener('click',function(e){var t=e.target.closest('[data-ovre
   if(t.id==='themebtn'){var nt=curTheme()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',nt);try{localStorage.setItem('kpi-theme',nt)}catch(e){}return render()}
   if(t.id==='pub')return publish();
   if(t.id==='focusbtn'){ui.focus=!ui.focus;return render()}
+  if(t.id==='ksfocus'){ui.ksFocus=!ui.ksFocus;return render()}
   if(t.id==='dfocus'){ui.dFocus=!ui.dFocus;return render()}
   if(t.dataset.bss!=null){ui.bSS=t.dataset.bss||null;ui.bSort=null;return render()}
   if(t.dataset.bs){var ob=ui.bSort,kb=t.dataset.bs;ui.bSort=ob&&ob.k===kb?(ob.d<0?{k:kb,d:1}:null):{k:kb,d:-1};return render()}
@@ -1813,7 +1818,7 @@ document.addEventListener('click',function(e){var t=e.target.closest('[data-ovre
   else if(t.dataset.rep){ui.focus=false;ui.rep=t.dataset.rep;ui.tab='rep';ui.oLimit=25;top()}
   else if(t.dataset.ol){ui.olist=t.dataset.ol;ui.oLimit=25}
   render()});
-document.addEventListener('keydown',function(e){var c=e.target.closest&&e.target.closest('.cat.drill');if(c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();c.click();return}var sm=document.getElementById('shotmodal');if(e.key==='Escape'&&sm&&!sm.hidden){sm.hidden=true;return}if(e.key==='Escape'&&(ui.focus||ui.dFocus)){ui.focus=false;ui.dFocus=false;render()}});
+document.addEventListener('keydown',function(e){var c=e.target.closest&&e.target.closest('.cat.drill');if(c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();c.click();return}var sm=document.getElementById('shotmodal');if(e.key==='Escape'&&sm&&!sm.hidden){sm.hidden=true;return}if(e.key==='Escape'&&(ui.focus||ui.dFocus||ui.ksFocus)){ui.focus=false;ui.dFocus=false;ui.ksFocus=false;render()}});
 try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){render()})}catch(e){}
 var rzT,rzW=window.innerWidth;window.addEventListener('resize',function(){clearTimeout(rzT);rzT=setTimeout(function(){if(ui.tab==='daily'){rzW=window.innerWidth;render()}if(ui.tab==='kpi')fitKpi()},250)});
 render();
