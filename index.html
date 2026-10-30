@@ -862,6 +862,20 @@ body.present .rp-side{display:none!important}
 .rp-side button small{font-weight:500;opacity:.8;font-size:.9em}
 .rp-side button.sr{margin-left:10px;padding:3px 8px;font-size:.76rem}
 .rp-dbw{grid-template-columns:250px minmax(0,1fr)}@media (max-width:1100px){.rp-dbw{grid-template-columns:minmax(0,1fr)}}
+/* cột đầu cố định: chỉ ô tiêu đề hàng 1 và ô thân bảng */
+.rp-t th:first-child,.rp-t td:first-child{max-width:none!important;overflow:visible!important;text-overflow:clip!important;white-space:nowrap;min-width:150px}
+.rp-t tr+tr th:first-child{position:static!important;left:auto;z-index:auto;min-width:0;text-align:center;background:#2b4a9a}
+.rp-t td:first-child{box-shadow:inset -2px 0 0 #8aa6d6;z-index:3}
+.rp-t th[rowspan]:first-child{z-index:4;box-shadow:inset -2px 0 0 #8aa6d6}
+.rp-t tr.tot td:first-child{background:#dceafb}.rp-t tr.tm td:first-child{background:#fdf3c4}
+.rp-snapbtn{background:#0f1d47!important;color:#fff!important;border-color:#0f1d47!important;font-weight:700!important}
+.rp-snapbox{position:fixed;left:-100000px;top:0;background:#fff;padding:18px;width:max-content;font-family:var(--f-ui);color:#22324f}
+.rp-snapbox .rp-snaph{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
+.rp-snapbox .rp-snaph b{font-size:20px;color:#13234d}.rp-snapbox .rp-snaph span{font-size:13px;color:#5b6780}
+.rp-snapbox .rp-t td:first-child,.rp-snapbox .rp-t th:first-child{position:static!important;box-shadow:none}
+.rp-snapbox .rp-note{max-width:1400px;margin-top:8px}
+.rp-snapbox button{font:inherit}
+.rp-snapbox button.nm{text-decoration:none;color:#13234d}
 
 /*RP-CSS-END*/
 </style>
@@ -2071,6 +2085,16 @@ document.addEventListener('click',function(e){var t=e.target.closest('[data-ovre
   if(t.dataset.f3){ui.f3=t.dataset.f3;render();return}
   if(t.dataset.f4){ui.f4=t.dataset.f4;render();return}});
 document.addEventListener('change',function(e){var t=e.target;if(t.classList&&t.classList.contains('tqsel')){ui.tqF=t.value||'all';render()}});
+/* chụp ảnh nguyên bảng (kể cả phần phải kéo ngang) để gửi Zalo */
+function loadH2C(){return new Promise(function(res,rej){if(window.html2canvas)return res();var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=res;s.onerror=function(){rej(new Error('Không tải được công cụ chụp ảnh'))};document.head.appendChild(s)})}
+function rpSnap(id,title,btn){var sec=document.getElementById(id),tb=sec&&sec.querySelector('.rp-tw table');if(!tb)return;var old=btn.textContent;btn.disabled=true;btn.textContent='Đang chụp…';
+  loadH2C().then(function(){var box=document.createElement('div');box.className='rp-snapbox';
+    box.innerHTML='<div class="rp-snaph"><b>'+esc(title)+'</b><span>NPP Phước Tài · Tháng '+M.month+'/'+M.year+' · số liệu đến '+dmy(M.to)+' · tiến độ thời gian '+dec(TIME*100,1)+'%</span></div>';
+    var c=tb.cloneNode(true);box.appendChild(c);var note=sec.querySelector('.rp-note');if(note){var n=note.cloneNode(true);box.appendChild(n)}document.body.appendChild(box);
+    return window.html2canvas(box,{scale:2,backgroundColor:'#ffffff',logging:false}).then(function(cv){box.remove();return new Promise(function(r){cv.toBlob(function(bl){r(bl)},'image/png')})})})
+  .then(function(bl){SHOT={blob:bl,name:(title+' '+dmy(M.to)).replace(/[^\wÀ-ỹ\s-]/g,'').replace(/\s+/g,'_').slice(0,80)+'.png',url:URL.createObjectURL(bl)};showShot()})
+  .catch(function(e){alert(e.message||e)}).then(function(){btn.disabled=false;btn.textContent=old})}
+document.addEventListener('click',function(e){var t=e.target.closest('[data-snap]');if(t)rpSnap(t.dataset.snap,t.dataset.snapt||'',t)});
 
 /* ---------------- TAB DASHBOARD ---------------- */
 function rpSide(){var ss=teams(),sc=rpScope();
@@ -2172,7 +2196,7 @@ function vTQ(){
   var hd='<tr><th rowspan="2">Phạm vi</th>'+TQK.map(function(q){return'<th colspan="4" class="g gs">'+q[1]+'<small>'+q[2]+'</small></th>'}).join('')+'</tr><tr>'+TQK.map(function(){return'<th class="gs">Chỉ tiêu</th><th>Thực hiện</th><th>%TH</th><th>Còn lại</th>'}).join('')+'</tr>';
   var cells=function(L){var a=agg(L);return TQK.map(function(q){var o=a[q[0]],p=o.t?o.a/o.t:0,c=kCls(q[0],o),ratio=q[0]==='lppc'||q[0]==='meat',rem=o.a-o.t;
     return'<td class="gs">'+(ratio?dec(o.t,1):kv(q[0],o.t))+'</td><td><b>'+kv(q[0],o.a)+'</b></td><td>'+plc(c,dec(p*100,1)+'%',false)+'</td><td class="'+(rem>=0?'t-good':'t-bad')+'"><b>'+(rem>=0?'+'+(ratio?dec(rem,2):kv(q[0],rem)):'−'+(ratio?dec(-rem,2):kv(q[0],-rem)))+'</b></td>'}).join('')};
-  h+=rpSec('tq2',2,'#f97316','KPI ĐDKD: chỉ tiêu, thực hiện và %TH','<div class="rp-ban">1. KPI ĐDKD: Chỉ tiêu, Thực hiện và %TH</div><div class="rp-filt"><button data-rpexp="kpi|1">Mở hết ĐDKD</button><button data-rpexp="kpi|0">Thu gọn</button><span class="who">Bấm tên Team (▸) để xổ ra từng ĐDKD · bấm tên ĐDKD để xem trang cá nhân</span></div><div class="rp-tw"><table class="rp-t">'+hd+rpRows(cells,{key:'kpi'})+'</table></div><div class="rp-note">%TH tô màu so với tiến độ thời gian '+dec(TIME*100,1)+'% (tím vượt từ 10%, xanh kịp, vàng chậm dưới 10%, đỏ chậm từ 10%). LPPC và LPPC Meat xét theo mức (LPPC: mức 1 '+dec(P.lppc1,1)+', mức 2 '+dec(P.lppc2,1)+'; Meat '+dec(P.meat,1)+'). Doanh số theo Triệu đồng trước chiết khấu.</div>');
+  h+=rpSec('tq2',2,'#f97316','KPI ĐDKD: chỉ tiêu, thực hiện và %TH','<div class="rp-ban">1. KPI ĐDKD: Chỉ tiêu, Thực hiện và %TH</div><div class="rp-filt"><button data-rpexp="kpi|1">Mở hết ĐDKD</button><button data-rpexp="kpi|0">Thu gọn</button><button class="rp-snapbtn" data-snap="tq2" data-snapt="KPI ĐDKD: Chỉ tiêu, Thực hiện và %TH">📷 Chụp ảnh bảng</button><span class="who">Bấm tên Team (▸) để xổ ra từng ĐDKD · bấm tên ĐDKD để xem trang cá nhân</span></div><div class="rp-tw"><table class="rp-t">'+hd+rpRows(cells,{key:'kpi'})+'</table></div><div class="rp-note">%TH tô màu so với tiến độ thời gian '+dec(TIME*100,1)+'% (tím vượt từ 10%, xanh kịp, vàng chậm dưới 10%, đỏ chậm từ 10%). LPPC và LPPC Meat xét theo mức (LPPC: mức 1 '+dec(P.lppc1,1)+', mức 2 '+dec(P.lppc2,1)+'; Meat '+dec(P.meat,1)+'). Doanh số theo Triệu đồng trước chiết khấu.</div>');
   /* 3. ngành hàng */
   var allCats=aggCat(M.reps).filter(function(c){return c.t>0}).map(function(c){return c.k});
   var pairs=function(s,i){var L=repsOf(s),T=agg(L).turnover,cs=aggCat(L).filter(function(c){return c.t>0});return'<div class="rp-card top"><div style="display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap"><h3 class="rp-ct" style="font-size:1.2rem">'+esc(teamName(s))+'</h3><span style="color:#728096">TH <b style="color:#13234d">'+tr0(T.a)+'</b> / CT <b style="color:#13234d">'+tr0(T.t)+'</b> Tr</span>'+plc(pc4(T.p),dec(T.p*100,1)+'%')+'</div>'+svgPairs(cs.map(function(c){return{name:c.name,t:c.t,a:c.a,c:'#10b981'}}),{label:'Ngành hàng '+teamName(s),mono:true,rot:true,h:330,w:620})+'</div>'};
