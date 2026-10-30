@@ -857,6 +857,11 @@ body.present .vbody,body.present .vbody>*,body.present main,body.present main .w
 body.present .rp-side{display:none!important}
 .rp-t td.cmp{font-weight:800;line-height:1.2}.rp-t td.cmp small{display:block;font-size:.78em;font-weight:700;opacity:.9}.rp-t td.na{color:#94a3b8}.rp-t td.cmp.h-good{color:#16804a}.rp-t td.cmp.h-bad{color:#c62f2f}
 .rp-t tr.lv2 td:first-child{padding-left:40px;font-size:.95em}.rp-t tr.lv2 td{background:#fbfcfe}.rp-t tr.lv1 td:first-child{padding-left:24px}
+.rp-side{max-height:none;overflow:visible;gap:4px}
+.rp-side button span:first-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rp-side button small{font-weight:500;opacity:.8;font-size:.9em}
+.rp-side button.sr{margin-left:10px;padding:3px 8px;font-size:.76rem}
+.rp-dbw{grid-template-columns:250px minmax(0,1fr)}@media (max-width:1100px){.rp-dbw{grid-template-columns:minmax(0,1fr)}}
 
 /*RP-CSS-END*/
 </style>
@@ -2070,9 +2075,10 @@ document.addEventListener('change',function(e){var t=e.target;if(t.classList&&t.
 /* ---------------- TAB DASHBOARD ---------------- */
 function rpSide(){var ss=teams(),sc=rpScope();
   var b=function(attr,on,lb,p){return'<button '+attr+' aria-pressed="'+on+'"><span>'+lb+'</span>'+(p!=null?'<span class="p '+('t-'+pc4(p))+'">'+dec(p*100,0)+'%</span>':'')+'</button>'};
-  var h='<aside class="rp-side"><h4>'+ico('gauge','sm')+'Tiến độ ĐDKD</h4><div class="gl">PHẠM VI</div>'+b('data-ov="all"',ui.ovSS==='all'&&!sc.rp,'Tổng NPP',agg(M.reps).turnover.p);
-  ss.forEach(function(s){h+=b('data-ov="'+esc(s)+'"',ui.ovSS===s&&!sc.rp,esc(teamName(s)),agg(repsOf(s)).turnover.p)});
-  ss.forEach(function(s){h+='<div class="gl">'+esc(teamName(s)).toUpperCase()+'</div>';repsOf(s).slice().sort(function(a,b){return a.short<b.short?-1:1}).forEach(function(r){h+=b('data-ovrep2="'+r.pos+'"',sc.rp===r,r.short+' · '+esc(r.name),r.k.turnover.p)})});
+  var h='<aside class="rp-side"><h4>'+ico('gauge','sm')+'Tiến độ ĐDKD</h4><div class="gl">PHẠM VI</div>'+b('data-ov="all"',ui.ovSS==='all'&&!sc.rp,'Tổng NPP <small>('+M.reps.length+' ĐDKD)</small>',agg(M.reps).turnover.p);
+  ss.forEach(function(s){var open=ui.ovSS===s;h+=b('data-ov="'+esc(s)+'"',open&&!sc.rp,(open?'▾ ':'▸ ')+esc(teamName(s))+' <small>('+repsOf(s).length+' ĐDKD)</small>',agg(repsOf(s)).turnover.p);
+    if(open)repsOf(s).slice().sort(function(a,b){return a.short<b.short?-1:1}).forEach(function(r){h+=b('class="sr" data-ovrep2="'+r.pos+'" title="'+esc(r.name)+'"',sc.rp===r,r.short+' · '+esc(r.name),r.k.turnover.p)})});
+  if(ui.ovSS==='all')h+='<div class="hint" style="font-size:.72rem;margin-top:4px">Bấm tên Team để xem từng ĐDKD</div>';
   return h+'</aside>'}
 function vDB(){
   var sc=rpScope(),L=sc.L,A=agg(L).turnover,mc=mcpOf(L),ac=actOf(L),kx=kxAll(L),D=M.elapsed||1,nR=L.length,bq=A.a/D,need=REMAIN>0?Math.max(0,A.t-A.a)/REMAIN:0,cls=pc4(A.p);
