@@ -922,6 +922,8 @@ tr.cbdet>td{background:#f4f8ff!important;padding:10px 12px 14px 22px!important;p
 .c360 td{vertical-align:middle}
 .c360 td:nth-child(3),.c360 td:nth-child(4),.c360 td:nth-child(5){text-align:right;white-space:nowrap}
 .c360 td:first-child{min-width:210px}
+.tagc.rep{background:#eef2ff;color:#4338ca;font-weight:700}
+.c360 td.c3t{text-align:left!important}.c360 td:first-child{min-width:280px}.c360 .cn1{flex-wrap:nowrap}
 
 /*RP-CSS-END*/
 </style>
@@ -1781,7 +1783,7 @@ var C360=null;
 function c360Maps(){if(C360&&C360.M===M)return C360;var hv={},cb={};if(STATE.hv&&STATE.hv.list)hvRows().forEach(function(x){hv[x.code]=x});if(STATE.combo&&STATE.combo.list)cb=cbBase().map;return C360={M:M,hv:hv,cb:cb}}
 function c360Tags(x){var P=c360Maps(),out=[],h=P.hv[x.code];
   if(h){var gap=h.base*.95-h.th;out.push({k:h.dai?'dai':'hv',g:'hv',t:(h.dai?'HV Đại sứ':'HV VIP')+(h.lv>=1?' · Đạt M'+h.lv:' · thiếu '+tr1v(gap))+(h.dai?' · '+h.n4+'/4 nhãn':''),done:h.lv>=1&&(!h.dai||h.n4>=4)})}
-  var c=P.cb[x.code];if(c){if(c.mem.off)out.push({k:'cbo',g:'cb',t:'Combo OFF: bill 800K'+(c.gift.off?' ✓ '+c.gift.off+' chai':''),done:!!c.gift.off});if(c.mem.nh)out.push({k:'cbh',g:'cb',t:'Combo Gia vị 400K/500K'+(c.gift.nh?' ✓ '+c.gift.nh+' chai':''),done:!!c.gift.nh});if(c.mem.on)out.push({k:'cbn',g:'cb',t:'Combo Bev 250K'+(c.gift.on?' ✓ '+c.gift.on+' chai':''),done:!!c.gift.on})}
+  var c=P.cb[x.code];if(c){if(c.mem.off)out.push({k:'cbo',g:'cb',t:'Combo OFF: bill 800K'+(c.gift.off?' ✓ '+c.gift.off+' chai':' · chưa có'),done:!!c.gift.off});if(c.mem.nh)out.push({k:'cbh',g:'cb',t:'Combo Gia vị 400K/500K'+(c.gift.nh?' ✓ '+c.gift.nh+' chai':' · chưa có'),done:!!c.gift.nh});if(c.mem.on)out.push({k:'cbn',g:'cb',t:'Combo Bev 250K'+(c.gift.on?' ✓ '+c.gift.on+' chai':' · chưa có'),done:!!c.gift.on})}
   var nh=c360Rebuy(x);if(nh.length)out.push({k:'tbp',g:'tbp',t:'NH cần tái bao phủ: '+nh.join(', ')});return out}
 function tr1v(v){return v>=1e6?dec(v/1e6,1)+'tr':int(v/1000)+'k'}
 function c360Rebuy(x){if(!x.sct)return[];var a=[];for(var k in x.sct){var s=x.sct[k];if((s[0]>0||s[1]+s[2]+s[3]>0)&&!((x.sa||{})[k]>0))a.push([k,s[0]||((s[1]+s[2]+s[3])/3)])}return a.sort(function(p,q){return q[1]-p[1]}).map(function(p){return NH_SHORT[p[0]]||p[0]})}
@@ -1789,7 +1791,7 @@ function tagHTML(g){var c=PCOL[g.done?'ok':g.k];return'<span class="c3tag" style
 function drawShot(list,c){
   var T=shotTitle(c,list),W=1180,pad=26,headH=128,thH=36,footH=70;
   var cv0=document.createElement('canvas').getContext('2d'),F='"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
-  var cx={n:pad+40,nw:330,rp:pad+380,ct:pad+470,tg:pad+640},tgW=W-pad-cx.tg;
+  var cx={n:pad+40,nw:390,ct:pad+450,tg:pad+620},tgW=W-pad-cx.tg;
   function tagsLayout(tags){cv0.font='600 13px '+F;var lines=[[]],w=0;tags.forEach(function(g){var tw=Math.min(tgW,cv0.measureText(g.t).width+16);if(w+tw>tgW&&lines[lines.length-1].length){lines.push([]);w=0}lines[lines.length-1].push({g:g,w:tw});w+=tw+6});return lines}
   var rows=list.map(function(x){var tags=c360Tags(x),L=tagsLayout(tags);return{x:x,L:L,h:Math.max(52,16+L.length*26)}});
   var H=headH+thH+rows.reduce(function(s,r){return s+r.h},0)+(rows.length?0:46)+footH,sc=Math.min(2,30000/H),cv=document.createElement('canvas');cv.width=Math.round(W*sc);cv.height=Math.round(H*sc);
@@ -1803,12 +1805,11 @@ function drawShot(list,c){
   var tt=list.reduce(function(a,x){return a+(x.ct||0)},0),th=list.reduce(function(a,x){return a+(x.ms||0)},0);
   txt(T.who+'  ·  '+int(list.length)+' khách'+(tt?'  ·  CT '+vnd(tt)+' · TH '+vnd(th)+' ('+pct(tt?th/tt:0)+')':''),pad,96,'600 16px '+F,'#ffffff');
   var y=headH;g.fillStyle='#eef2f8';g.fillRect(0,y,W,thH);
-  [['#',pad+28,'right'],['KHÁCH HÀNG',cx.n],['ĐDKD',cx.rp],['CT / TH / %',cx.ct],['CHƯƠNG TRÌNH ÁP DỤNG',cx.tg]].forEach(function(k){txt(k[0],k[1],y+23,'800 12px '+F,'#475569',k[2]||'left')});y+=thH;
+  [['#',pad+28,'right'],['KHÁCH HÀNG · ĐDKD',cx.n],['CT / TH / %',cx.ct],['CHƯƠNG TRÌNH ÁP DỤNG',cx.tg]].forEach(function(k){txt(k[0],k[1],y+23,'800 12px '+F,'#475569',k[2]||'left')});y+=thH;
   rows.forEach(function(R,i){var x=R.x,h=R.h;g.fillStyle=i%2?'#f8fafc':'#ffffff';g.fillRect(0,y,W,h);g.fillStyle='#e2e8f0';g.fillRect(0,y+h-1,W,1);
     txt(String(i+1),pad+28,y+24,'700 14px '+F,'#94a3b8','right');
-    txt(fit(x.name,cx.nw,'800 16px '+F),cx.n,y+22,'800 16px '+F,'#0f172a');
+    var nm=fit(x.name,cx.nw-80,'800 16px '+F);txt(nm,cx.n,y+22,'800 16px '+F,'#0f172a');g.font='800 16px '+F;var nx=cx.n+g.measureText(nm).width+8,rn=shortName(x.rep);g.font='700 12px '+F;var rw=g.measureText(rn).width+12;rr(nx,y+8,rw,19,9,'#eef2ff','#6366f155');txt(rn,nx+6,y+22,'700 12px '+F,'#4338ca');
     txt(fit(x.code+' · '+x.ch+(x.type&&!/^l[eẻ]$/i.test(x.type.trim())?' · '+x.type:'')+' · '+(x.sch||'—'),cx.nw,'500 12px '+F),cx.n,y+40,'500 12px '+F,'#64748b');
-    txt(shortName(x.rep),cx.rp,y+24,'700 15px '+F,'#1e293b');
     var p=x.ct?(x.ms||0)/x.ct:0,pc={good:'#15803d',warn:'#b45309',bad:'#dc2626'}[paceCls(p)];
     txt(x.ct?vnd(x.ct)+' / '+(x.ms?vnd(x.ms):'0'):(x.ms?'TH '+vnd(x.ms):'Chưa mua'),cx.ct,y+22,'700 14px '+F,'#0f172a');
     if(x.ct)txt(pct(p),cx.ct,y+40,'800 13px '+F,pc);else if(!x.ms)txt('',cx.ct,y+40,'500 12px '+F,'#dc2626');
@@ -1928,14 +1929,13 @@ function vCust(){
     '<button class="btn shotbtn" id="cfshot">'+ico('camera')+'Chụp ảnh ('+int(list.length)+' KH)</button>'+
     '<label class="fsearch">'+ico('search','sm')+'<input id="cfq" type="search" placeholder="Tìm tên, mã KH, phường…" value="'+esc(c.q)+'" autocomplete="off"></label></div></div>';
   var ar=function(k){return c.sort===k?' ▼':''};
-  h+='<div class="tablewrap ctab c360"><table><thead><tr><th class="srt" data-cfsort="name">Khách hàng'+ar('name')+'</th><th class="srt" data-cfsort="rep">ĐDKD'+ar('rep')+'</th><th class="srt" data-cfsort="ct">CT tháng'+(CTON&&c.sub!=='all'?' · '+esc(c.sub):'')+ar('ct')+'</th><th class="srt" data-cfsort="ms">TH'+ar('ms')+'</th><th>%</th><th class="c3h">Chương trình áp dụng · nhắc nhanh</th><th class="srt" data-cfsort="s3" title="Doanh số trung bình mỗi tháng của 3 tháng gần nhất">DS TB 3T'+ar('s3')+'</th>'+(CTON?'<th title="Doanh số 3 tháng trước (M-1 / M-2 / M-3)">3T trước</th>':'')+'</tr></thead><tbody>';
+  h+='<div class="tablewrap ctab c360"><table><thead><tr><th class="srt" data-cfsort="name">Khách hàng · ĐDKD'+ar('name')+'</th><th class="srt" data-cfsort="ct">CT tháng'+(CTON&&c.sub!=='all'?' · '+esc(c.sub):'')+ar('ct')+'</th><th class="srt" data-cfsort="ms">TH'+ar('ms')+'</th><th>%</th><th class="c3h">Chương trình áp dụng · nhắc nhanh</th><th class="srt" data-cfsort="s3" title="Doanh số trung bình mỗi tháng của 3 tháng gần nhất">DS TB 3T'+ar('s3')+'</th>'+(CTON?'<th title="Doanh số 3 tháng trước (M-1 / M-2 / M-3)">3T trước</th>':'')+'</tr></thead><tbody>';
   list.slice(0,c.lim).forEach(function(x){var op=c.open===x.code,v=subV(x,CTON?c.sub:'all'),a=CTON&&c.sub!=='all'?v.a:(x.ms||0),ct=v.ct,p=ct?a/ct:0;
-    h+='<tr class="crow'+(op?' open':'')+'"><td><button class="cname" data-cfopen="'+x.code+'" aria-expanded="'+op+'">'+ico(op?'chevron-down':'chevron-right','sm')+'<span class="cn"><span class="cn1"><b>'+esc(x.name)+'</b><span class="tagc sm '+(x.ch==='ON'?'on':'off')+'">'+x.ch+'</span>'+(x.type&&!/^l[eẻ]$/i.test(x.type.trim())?'<span class="tagc sm vip">'+esc(x.type)+'</span>':'')+'</span><small>'+x.code+' · Lịch '+esc(x.sch||'—')+' · F'+x.f+'</small></span></button></td>'+
-      '<td><b>'+esc(shortName(x.rep))+'</b><small class="hint" style="display:block">'+x.short+'</small></td>'+
+    h+='<tr class="crow'+(op?' open':'')+'"><td><button class="cname" data-cfopen="'+x.code+'" aria-expanded="'+op+'">'+ico(op?'chevron-down':'chevron-right','sm')+'<span class="cn"><span class="cn1"><b>'+esc(x.name)+'</b><span class="tagc sm '+(x.ch==='ON'?'on':'off')+'">'+x.ch+'</span>'+(x.type&&!/^l[eẻ]$/i.test(x.type.trim())?'<span class="tagc sm vip">'+esc(x.type)+'</span>':'')+'<span class="tagc sm rep">'+esc(shortName(x.rep))+'</span></span><small>'+x.code+' · Lịch '+esc(x.sch||'—')+' · F'+x.f+'</small></span></button></td>'+
       '<td>'+(ct?vnd(ct):'<span class="hint">—</span>')+'</td><td>'+(a>0?'<b class="h-good">'+vnd(a)+'</b>':'<span class="pill s-bad">Chưa mua</span>')+'</td><td>'+(ct?'<span class="pill s-'+paceCls(p)+'">'+pct(p)+'</span>':'')+'</td>'+
       '<td class="c3t">'+(function(){var tg=c360Tags(x);return tg.length?tg.map(tagHTML).join(''):'<span class="hint">—</span>'})()+'</td><td>'+vnd(x.s3)+'</td>'+(CTON?'<td class="h3t">'+(v.hh?v.hh.map(function(z){return z?vnd(z):'–'}).join(' / '):'')+'</td>':'')+'</tr>'+
-      (op?'<tr class="cdet"><td colspan="'+(CTON?8:7)+'">'+custDetail(x)+'</td></tr>':'')});
-  if(!list.length)h+='<tr><td colspan="'+(CTON?8:7)+'" class="empty">Không có khách nào khớp bộ lọc.</td></tr>';
+      (op?'<tr class="cdet"><td colspan="'+(CTON?7:6)+'">'+custDetail(x)+'</td></tr>':'')});
+  if(!list.length)h+='<tr><td colspan="'+(CTON?7:6)+'" class="empty">Không có khách nào khớp bộ lọc.</td></tr>';
   h+='</tbody></table></div><div class="tfoot"><span class="hint">Hiển thị '+int(Math.min(c.lim,list.length))+' / '+int(list.length)+' khách</span>'+(list.length>c.lim?'<button class="more" id="cfmore">Xem thêm 100</button>':'')+'</div>';
   return h}
 
