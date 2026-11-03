@@ -966,6 +966,12 @@ tr.cbdet>td{background:#f4f8ff!important;padding:10px 12px 14px 22px!important;p
 .cbcw{padding:10px 12px}.cbsc{overflow-x:auto}.cbchart{display:block;width:100%;min-width:640px;height:auto}
 .rp-t.cbhm td,.rp-t.cbhm th{padding:5px 6px;min-width:30px;text-align:center}.rp-t.cbhm th small{display:block;font-weight:500;opacity:.8}
 @media (max-width:700px){.rp-g4.cbsum{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+.plcats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+@media (max-width:900px){.plcats{grid-template-columns:minmax(0,1fr)}}
+.plcat{border:1px solid #cfe6ee;border-radius:14px;padding:12px;background:linear-gradient(180deg,#f0fbff,#fff)}
+.plch{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline;margin-bottom:6px}.plch b{font-size:1.02rem;color:#0e3a4f}.plch span{font-size:.82rem;color:#475569}
+.plprog{list-style:none;margin:10px 0 8px;padding:0;display:flex;flex-direction:column;gap:6px;font-size:.82rem;line-height:1.45}
+.plopp{font-size:.82rem;background:#fff;border:1px dashed #a5d8e8;border-radius:10px;padding:6px 10px}.plopp ol{margin:4px 0 0;padding-left:18px}
 
 /*RP-CSS-END*/
 </style>
@@ -2875,7 +2881,7 @@ function vPLAN(){
     kc('bad','trending-up','Cần bình quân / ngày còn lại',tr1(need)+' Tr','Còn thiếu '+tr1(left)+' Tr · '+REMAIN+' ngày công')+
     kc('pu','crown','Hội viên chiếm trong chỉ tiêu',plShare(Z.hv.ct,Z.ct),int(Z.hv.n)+' / '+int(Z.n)+' KH ('+plShare(Z.hv.n,Z.n)+' số KH) · CT '+tr1(Z.hv.ct)+' Tr · TH '+plShare(Z.hv.th,Z.hv.ct))+
     kc('blue','package','Combo chiếm trong chỉ tiêu',plShare(Z.cb.ct,Z.ct),int(Z.cb.n)+' KH (KH lẻ OFF, Nhà hàng, ON) · CT '+tr1(Z.cb.ct)+' Tr · đã nhận '+int(Z.cb.got)+' KH')+'</div>';
-  h+=rpNav([['pl1','Mục tiêu & mốc tuần'],['pl2','Tỷ trọng Hội viên – Combo'],['pl3','Gắn kết × Hội viên'],['pl4',isRep?'Kế hoạch ĐDKD':'Kế hoạch từng ĐDKD'],['pl5','Đề xuất & theo dõi']]);
+  h+=rpNav([['pl1','Mục tiêu & mốc tuần'],['pl2','Tỷ trọng Hội viên – Combo'],['plc','Cơ hội theo ngành hàng'],['pl3','Gắn kết × Hội viên'],['pl4',isRep?'Kế hoạch ĐDKD':'Kế hoạch từng ĐDKD'],['pl5','Đề xuất & theo dõi']]);
   var hvT=Z.hv.n?Math.ceil(Z.hv.n*.7):0;
   var kr=[['Doanh số tháng','DS bán ra (trước CK)',tr1(Z.th)+' Tr',tr1(Z.tgt)+' Tr','30/'+M.month,'Target'],
     hvOn?['Hội viên đạt ≥95% CT nền','Số KH hội viên đạt M1',int(Z.hv.ok)+' / '+int(Z.hv.n),int(hvT)+' KH (70%)','30/'+M.month,'Đề xuất']:null,
@@ -2897,7 +2903,8 @@ function vPLAN(){
     '<div class="rp-tw"><table class="rp-t"><tr><th rowspan="2">Team / ĐDKD</th><th colspan="2" class="g gs" style="background:#0b3d7a">Chỉ tiêu</th><th colspan="4" class="g gs" style="background:#7c3aed">Hội viên</th><th colspan="4" class="g gs" style="background:#1d4ed8">Combo</th><th colspan="4" class="g gs" style="background:#0f766e">Hội viên ∪ Combo (không trùng)</th></tr>'+
     '<tr><th class="gs">Target</th><th>CT theo KH</th><th class="gs">Số KH</th><th>CT nhóm</th><th>% CT</th><th>%TH</th><th class="gs">Số KH</th><th>CT nhóm</th><th>% CT</th><th>%TH</th><th class="gs">Số KH</th><th>CT nhóm</th><th>% CT</th><th>CT ngoài nhóm</th></tr>'+rpRows(cell2,{key:'pl'})+'</table></div>'+
     '<div class="rp-note"><b>% CT</b> = tổng chỉ tiêu tháng của các KH trong nhóm (file chỉ tiêu doanh số theo KH) / tổng CT theo KH của ĐDKD. <b>Combo</b> gồm KH trong file KH Combo (OFF, Nhà hàng) và toàn bộ KH kênh ON (combo Bev). Một KH vừa là hội viên vừa trong combo chỉ tính 1 lần ở cột Hội viên ∪ Combo. %TH so với tiến độ thời gian '+dec(TIME*100,1)+'%.</div>');
-  /* 3. Gắn kết & Tập trung */
+  /* 3. Cơ hội theo ngành hàng */
+  h+=rpSec('plc',3,'#0891b2','Cơ hội theo ngành hàng – tất cả chương trình tháng '+M.month,plCat(sc));
   /* 3. Gắn kết (tăng trưởng) – chỉ tiêu doanh số, kết hợp Hội viên */
   var GP=GKON()?gkData().P.filter(function(p){return p.kind==='gk'}):[],gp=ui.plGk||'all',GPS=GP.filter(function(p){return p.key===gp})[0];if(gp!=='all'&&!GPS)gp='all';
   var gkE=function(L){var D=planData().by,o=[];L.forEach(function(r){D[r.pos].gk.L.forEach(function(e){if(gp==='all'||e.g.p.key===gp)o.push(e)})});return o};
@@ -2917,7 +2924,7 @@ function vPLAN(){
     idea.push('<b>Đại sứ thiếu nhãn:</b> '+int(dCh)+' KH Đại sứ trong Gắn kết Chanté chưa đủ 150k Chanté, '+int(dMi)+' KH Đại sứ trong Gắn kết Ngành Mì chưa đủ 150k Kokomi. Chốt 1 đơn Chanté / Kokomi cho nhóm này giải cùng lúc điều kiện 4 nhãn Đại sứ và tiến tới mốc tăng trưởng.');
     idea.push('<b>Câu chuyện bán hàng:</b> báo KH 3 con số — DS nền tháng trước, mốc cần đạt, tiền thưởng nhận được nếu đạt (cột Thưởng KH). Ví dụ Chanté: thưởng 3 điểm / 1đ, tối đa 200.000đ/KH; Ngành Mì: tối đa 3.000.000đ/KH.');
     idea.push('<b>Nhịp đẩy:</b> tuần 1–2 phủ đơn đầu tiên cho mọi lượt Gắn kết là KH hội viên; tuần 3 chốt các lượt ≥70% mốc; tuần 4 dồn đơn cho KH còn thiếu dưới 30% mốc để chạm mốc trước ngày chốt.')}
-  h+=rpSec('pl3',3,'#0f766e','Gắn kết tăng trưởng – chỉ tiêu doanh số & kết hợp Hội viên','<div class="rp-ban">Gắn kết tăng trưởng – chỉ tiêu doanh số theo Team / ĐDKD · '+esc(sc.who)+' <small>(Triệu)</small></div>'+gchip+'<div class="rp-filt"><button data-rpexp="pl3|1">Mở hết ĐDKD</button><button data-rpexp="pl3|0">Thu gọn</button><button class="rp-fbtn" data-rpfocus="pl3">'+(ui.rpFocus==='pl3'?'✕ Thoát Focus':'⛶ Focus xem full')+'</button><button class="rp-snapbtn" data-snap="pl3" data-snapt="Gắn kết tăng trưởng – chỉ tiêu doanh số – '+esc(sc.who)+(GPS?' – '+GPS.short:'')+'">📷 Chụp ảnh bảng</button></div>'+
+  h+=rpSec('pl3',4,'#0f766e','Gắn kết tăng trưởng – chỉ tiêu doanh số & kết hợp Hội viên','<div class="rp-ban">Gắn kết tăng trưởng – chỉ tiêu doanh số theo Team / ĐDKD · '+esc(sc.who)+' <small>(Triệu)</small></div>'+gchip+'<div class="rp-filt"><button data-rpexp="pl3|1">Mở hết ĐDKD</button><button data-rpexp="pl3|0">Thu gọn</button><button class="rp-fbtn" data-rpfocus="pl3">'+(ui.rpFocus==='pl3'?'✕ Thoát Focus':'⛶ Focus xem full')+'</button><button class="rp-snapbtn" data-snap="pl3" data-snapt="Gắn kết tăng trưởng – chỉ tiêu doanh số – '+esc(sc.who)+(GPS?' – '+GPS.short:'')+'">📷 Chụp ảnh bảng</button></div>'+
     '<div class="rp-tw"><table class="rp-t"><tr><th rowspan="2">Team / ĐDKD</th><th colspan="5" class="g gs" style="background:#0f766e">Chỉ tiêu doanh số Gắn kết</th><th colspan="3" class="g gs" style="background:#0f9d76">Kết quả</th><th colspan="4" class="g gs" style="background:#7c3aed">Trong đó KH hội viên</th></tr>'+
     '<tr><th class="gs">Lượt KH</th><th>DS nền</th><th>Mốc tăng trưởng</th><th>DS tăng thêm cần</th><th>DS MTD</th><th class="gs">% mốc</th><th>Đạt</th><th>Gần đạt</th><th class="gs">Lượt KH HV</th><th>Mốc nhóm HV</th><th>% mốc GK</th><th>% mốc nhóm HV</th></tr>'+rpRows(cell3,{key:'pl3'})+'</table></div>'+
     '<div class="rp-ban" style="margin-top:12px">Gắn kết × Hội viên theo chương trình · '+esc(sc.who)+' <small>(Triệu)</small></div><div class="rp-tw"><table class="rp-t"><tr><th>Chương trình</th><th class="gs">Lượt KH</th><th>DS nền</th><th>Mốc</th><th>Tăng thêm</th><th>% mốc</th><th class="gs">KH hội viên</th><th>Mốc nhóm HV</th><th>% mốc</th><th>Liên quan hội viên</th><th>Đại sứ thiếu nhãn</th><th class="gs">Thưởng KH nếu đạt</th></tr>'+GP.map(prow).join('')+'</table></div>'+
@@ -2927,9 +2934,9 @@ function vPLAN(){
   var D=planData().by,reps=sc.L.slice().sort(function(a,b){return a.short<b.short?-1:1});
   var lim=isRep?reps:(ui.plRep?reps.filter(function(r){return r.pos===ui.plRep}):[]);
   var pick='<div class="rp-filt"><span class="lb">ĐDKD:</span>'+reps.map(function(r){var A=D[r.pos],p=A.tgt?A.th/A.tgt:0;return'<button data-plrep="'+r.pos+'" aria-pressed="'+(isRep||ui.plRep===r.pos)+'">'+r.short+' · '+esc(shortName(r.name))+' <small class="'+(p>=TIME?'t-good':'t-bad')+'">'+dec(p*100,0)+'%</small></button>'}).join('')+'</div>';
-  h+=rpSec('pl4',4,'#f97316',isRep?'Kế hoạch ĐDKD':'Kế hoạch từng ĐDKD',(isRep?'':pick+(lim.length?'':'<div class="rp-note">Bấm tên ĐDKD để mở kế hoạch chi tiết (việc ưu tiên, danh sách KH cần đẩy, mốc tuần).</div>'))+lim.map(function(r){return plRepCard(r,D[r.pos],W)}).join(''));
+  h+=rpSec('pl4',5,'#f97316',isRep?'Kế hoạch ĐDKD':'Kế hoạch từng ĐDKD',(isRep?'':pick+(lim.length?'':'<div class="rp-note">Bấm tên ĐDKD để mở kế hoạch chi tiết (việc ưu tiên, danh sách KH cần đẩy, mốc tuần).</div>'))+lim.map(function(r){return plRepCard(r,D[r.pos],W)}).join(''));
   /* 5. đề xuất */
-  h+=rpSec('pl5',5,'#be185d','Đề xuất & cơ chế theo dõi',plAdvice(sc,Z));
+  h+=rpSec('pl5',6,'#be185d','Đề xuất & cơ chế theo dõi',plAdvice(sc,Z));
   return h+'</div>'}
 function plRepCard(r,A,W){var left=Math.max(0,A.tgt-A.th),need=REMAIN>0?left/REMAIN:0,p=A.tgt?A.th/A.tgt:0,wkLeft=Math.max(1,W.filter(function(w){return w.to>M.to}).length);
   var day=function(x){return x.sch?' <small class="t-mu">'+esc(visD(x.sch))+'</small>':''};
@@ -2969,6 +2976,52 @@ function plAdvice(sc,Z){var D=planData().by,L=sc.L.map(function(r){var A=D[r.pos
     '<div class="rp-ban" style="margin-top:12px">Rủi ro & phương án</div><div class="rp-tw"><table class="rp-t plw"><tr><th>Rủi ro</th><th>Khả năng</th><th>Ảnh hưởng</th><th>Biện pháp</th></tr>'+risk.map(function(a){return'<tr class="rp-r"><td style="text-align:left"><b>'+a[0]+'</b></td><td>'+a[1]+'</td><td>'+a[2]+'</td><td style="text-align:left">'+a[3]+'</td></tr>'}).join('')+'</table></div>'+
     '<div class="rp-note"><b>Cơ chế theo dõi:</b> mỗi sáng thả file data DMS → bấm Thả GitHub; giao ban 15 phút trên tab Kế hoạch (cần/ngày, việc ưu tiên); ĐDKD nhận ảnh tuyến Khách hàng 360 qua Zalo trước giờ đi tuyến; thứ 7 review mốc tuần ở mục 1. Mục tiêu "Đề xuất" và mức rủi ro là gợi ý — anh chỉnh theo chỉ đạo ASM.</div>'}
 document.addEventListener('click',function(e){var t=e.target.closest('[data-plrep],[data-plgk]');if(!t)return;if(t.dataset.plgk)ui.plGk=t.dataset.plgk;else ui.plRep=ui.plRep===t.dataset.plrep?null:t.dataset.plrep;render()});
+
+/* ---- Cơ hội theo ngành hàng: gom mọi chương trình T11 chạm vào từng Sub_div ---- */
+var PLCAT=[
+  {k:'Seasoning',n:'Gia vị',hv:[[1,'Chinsu'],[3,'Nam Ngư']],gk:[],tt:['gv'],cb:['off','nh'],th:'cbx',kpi:'Trận Vàng: Hạt nêm Chinsu ngọt thanh xương hầm (15 ASO)'},
+  {k:'Convenience Foods',n:'Mì',hv:[[2,'Kokomi']],gk:['mi2'],tt:['mi'],cb:['off'],th:'mi'},
+  {k:'Home Care',n:'Home Care (Chanté, Homey, NET)',hv:[[0,'Chanté']],gk:['ch'],tt:[],cb:['off'],th:'hm'},
+  {k:'Coffee',n:'Cà phê',hv:[],gk:['cf'],tt:[],cb:['off']},
+  {k:'Processed Meats',n:'Thịt chế biến',hv:[],gk:[],tt:['xx','meat'],cb:['off'],th:'meat'},
+  {k:'Refreshment Drinks',n:'Nước giải khát',hv:[],gk:[],tt:['tea'],cb:['on']},
+  {k:'Nutrition',n:'Dinh dưỡng (B\'fast)',hv:[],gk:[],tt:['bf'],cb:['off']},
+  {k:'Beer',n:'Bia',hv:[],gk:['bia'],tt:[],cb:[]}];
+function plCat(sc){var inL={};sc.L.forEach(function(r){inL[r.pos]=1});var CU=custIndex().filter(function(x){return inL[x.pos]}),G=GKON()?gkData().rows.filter(function(x){return inL[x.pos]}):[],HVL=(STATE.hv&&STATE.hv.list)?hvRows().filter(function(x){return inL[x.pos]}):[];
+  var np=typeof th11Npp==='function'?th11Npp():null,T11=M.month===11&&M.year===2026;
+  var rows=PLCAT.map(function(c){var a=0,t=0;sc.L.forEach(function(r){var q=r.cat[c.k];if(q){a+=q.a||0;t+=q.t||0}});
+    var noBuy=0,lost=0,noCt=0;CU.forEach(function(x){var s=x.sct&&x.sct[c.k],sa=(x.sa||{})[c.k]>0;if(s&&s[0]>0&&!sa)noBuy++;if(s&&(s[1]+s[2]+s[3])>0&&!sa)lost++});
+    var gkR=G.filter(function(g){return c.gk.indexOf(g.p.scope)>=0&&g.p.kind==='gk'}),ttR=G.filter(function(g){return c.tt.indexOf(g.p.scope)>=0&&g.p.kind==='tt'&&(!g.p.wide||g.bought)}),ttW=G.filter(function(g){return c.tt.indexOf(g.p.scope)>=0&&g.p.kind==='tt'&&g.p.wide});
+    var gz={n:gkR.length,inc:0,ok:0,near:0,rw:0};gkR.forEach(function(g){gz.inc+=Math.max(0,g.thr-g.base);if(g.ok)gz.ok++;if(g.near)gz.near++;gz.rw+=g.ok?g.rw:Math.min(g.thr*g.p.mult,g.p.cap||Infinity)/100});
+    var tz={n:ttR.length,ok:0,near:0,need:0,wide:{}};ttR.forEach(function(g){if(g.ok)tz.ok++;if(g.near)tz.near++;if(!g.ok)tz.need+=g.need});ttW.forEach(function(g){var w=tz.wide[g.p.key]||(tz.wide[g.p.key]={p:g.p,n:0,b:0});w.n++;if(g.bought)w.b++});
+    var hvz=c.hv.map(function(h){var n0=HVL.filter(function(x){return!x.a[h[0]]}).length,d=HVL.filter(function(x){return x.dai&&x.a[h[0]]<150000}).length;return{b:h[1],n0:n0,d:d}});
+    var p=t?a/t:0,gap=Math.max(0,t*TIME-a),left=Math.max(0,t-a);return{c:c,a:a,t:t,p:p,gap:gap,left:left,need:REMAIN>0?left/REMAIN:0,noBuy:noBuy,lost:lost,gz:gz,tz:tz,hvz:hvz}}).filter(function(r){return r.t>0||r.a>0});
+  var totT=rows.reduce(function(s,r){return s+r.t},0);rows.sort(function(x,y){return y.left-x.left});
+  /* chương trình ĐDKD (thưởng) theo ngành */
+  var bonus=function(k){if(!T11||typeof th11!=='function')return'';var L=sc.L.map(function(r){return th11(r,np)});
+    if(k==='mi')return'Thưởng ĐDKD Ngành Mì (TB 490): NPP đạt <b>'+dec(np.p*100,1)+'%</b> CT lương Mì → cần 100% để mỗi ĐDKD nhận 300.000 đ, 110% nhận 500.000 đ';
+    if(k==='hm'){var n=L.filter(function(o){return o.hm>=15}).length,s2=L.reduce(function(s,o){return s+o.hm},0);return'Thưởng Homey (TB 490): '+int(s2)+' cửa hàng có Homey, '+n+'/'+L.length+' ĐDKD đủ 15 cửa hàng (10.000 đ/cửa hàng)'}
+    if(k==='cbx'){var s3=L.reduce(function(s,o){return s+o.cbx},0);return'Thưởng Combo xốt mỹ vị Chinsu (TB 490): '+int(s3)+' ASO (cần ≥5 ASO/ĐDKD, ≥2 hộp/đơn, 10.000 đ/ASO)'}
+    if(k==='meat'){var n1=L.filter(function(o){return o.lvl}).length,pot=L.reduce(function(s,o){return s+o.tdP+o.ttP+o.mmP},0);return'Thưởng Thịt chế biến (TB 493): '+n1+'/'+L.length+' ĐDKD đạt điều kiện 100% CT lương; nếu cả đội đạt M1 với DS hiện tại: '+vnk(pot)}
+    return''};
+  var sumT='<div class="rp-tw"><table class="rp-t"><tr><th>#</th><th>Ngành hàng</th><th class="gs">CT lương</th><th>Tỷ trọng CT</th><th>TH</th><th>% CT</th><th>Còn thiếu</th><th>Cần/ngày</th><th class="gs">KH có CT<br>chưa mua</th><th>3T trước có mua<br>nay chưa mua</th><th class="gs">Gắn kết<br>DS tăng thêm</th><th>Số chương<br>trình</th></tr>'+
+    rows.map(function(r,i){var nP=r.c.hv.length+r.c.gk.length+r.c.tt.length+(r.c.cb.length?1:0)+(r.c.th?1:0)+(r.c.kpi?1:0);return'<tr class="rp-r"><td>'+(i+1)+'</td><td style="text-align:left"><b>'+esc(r.c.n)+'</b></td><td class="gs">'+tr1(r.t)+'</td><td>'+plShare(r.t,totT)+'</td><td><b>'+tr1(r.a)+'</b></td><td>'+(r.t?pl(r.p,null,true):'—')+'</td><td>'+tr1(r.left)+'</td><td class="t-bad"><b>'+tr1(r.need)+'</b></td><td class="gs">'+int(r.noBuy)+'</td><td>'+int(r.lost)+'</td><td class="gs">'+(r.gz.n?'<b class="t-pu">+'+tr1(r.gz.inc)+'</b>':'—')+'</td><td>'+nP+'</td></tr>'}).join('')+'</table></div>';
+  var card=function(r){var c=r.c,it=[];
+    c.hv.forEach(function(h,i){var z=r.hvz[i];it.push(['hv','Hội viên – nhãn '+z.b,int(z.n0)+' KH hội viên chưa mua '+z.b+(z.d?' · '+int(z.d)+' Đại sứ chưa đủ 150k':'')])});
+    if(r.gz.n)it.push(['gkt','Gắn kết '+c.gk.map(function(k){return({mi2:'Ngành Mì ≥120%',ch:'Chanté ≥115%',cf:'Cà phê ≥130%',bia:'Bia ≥120%'})[k]}).join(', '),int(r.gz.n)+' lượt KH · cần tăng thêm <b>'+tr1(r.gz.inc)+' Tr</b> so với nền · đạt '+int(r.gz.ok)+' · gần đạt '+int(r.gz.near)+' · thưởng KH '+vnk(r.gz.rw)]);
+    if(r.tz.n)it.push(['spt','Tập trung (danh sách riêng / đã mua)',int(r.tz.n)+' lượt · đạt '+int(r.tz.ok)+' · gần đạt '+int(r.tz.near)+' · còn thiếu '+tr1(r.tz.need)+' Tr đến mốc']);
+    for(var wk in r.tz.wide){var w=r.tz.wide[wk];it.push(['spt','Tập trung '+pgTag(w.p)+' (mọi KH, ≥'+tr1v(w.p.min)+')',int(w.b)+' / '+int(w.n)+' KH đã mua'])}
+    if(c.cb.length)it.push([c.cb[0]==='on'?'cbn':'cbo','Combo '+c.cb.map(function(k){return k==='off'?'KH lẻ OFF bill 800K':k==='nh'?'Gia vị 400K/500K (Nhà hàng)':'Bev 250K (ON)'}).join(' · '),c.k==='Refreshment Drinks'?'Tặng Wake up 247 khi bill Bev 250K có ≥80k sản phẩm mới (WK247 Amazon, Bupnon 365)':c.k==='Seasoning'?'Bill 800K có ≥100k từ 4 nhãn trọng điểm, hoặc bill Gia vị 400–500K cho nhà hàng':'Hàng ngành này giúp cộng đủ bill 800K Masan của combo OFF']);
+    var b=c.th?bonus(c.th):'';if(b)it.push(['ok','Thưởng ĐDKD',b]);
+    if(c.kpi)it.push(['tbp','KPI lương (CV26)',c.kpi]);
+    var opp=[];if(r.noBuy)opp.push('Phủ lại '+int(r.noBuy)+' KH có chỉ tiêu ngành nhưng chưa mua (lọc "Tái bao phủ" ở tab Khách hàng 360, chọn ngành '+esc(c.k)+')');
+    if(r.gz.near)opp.push('Chốt '+int(r.gz.near)+' lượt Gắn kết đã ≥70% mốc');if(c.hv.length&&r.hvz.some(function(z){return z.d}))opp.push('Chào '+r.hvz.map(function(z){return z.b}).join(' / ')+' cho KH Đại sứ chưa đủ 150k để mở điều kiện 4 nhãn');
+    opp.push('Cần '+tr1(r.need)+' Tr/ngày trong '+REMAIN+' ngày còn lại để đạt 100% CT lương ngành');
+    return'<div class="plcat"><div class="plch"><b>'+esc(c.n)+'</b><span>CT '+tr1(r.t)+' Tr ('+plShare(r.t,totT)+') · TH '+tr1(r.a)+' '+pl(r.p,null,true)+'</span></div>'+kbar(r.p,pc4(r.p),TIME)+
+      '<ul class="plprog">'+it.map(function(x){var col=PCOL[x[0]]||['#334155','#f1f5f9'];return'<li><span class="c3tag" style="color:'+col[0]+';background:'+col[1]+';border-color:'+col[0]+'33">'+esc(x[1])+'</span> '+x[2]+'</li>'}).join('')+'</ul>'+
+      '<div class="plopp"><b>Cơ hội:</b><ol>'+opp.map(function(o){return'<li>'+o+'</li>'}).join('')+'</ol></div></div>'};
+  return'<div class="rp-ban">Cơ hội từng ngành hàng · '+esc(sc.who)+' <small>(sắp theo số còn thiếu đến 100% CT lương · Triệu)</small></div><div class="rp-filt"><button class="rp-fbtn" data-rpfocus="plc">'+(ui.rpFocus==='plc'?'✕ Thoát Focus':'⛶ Focus xem full')+'</button><button class="rp-snapbtn" data-snap="plc" data-snapt="Cơ hội theo ngành hàng – '+esc(sc.who)+'">📷 Chụp ảnh bảng</button></div>'+sumT+
+    '<div class="plcats">'+rows.map(card).join('')+'</div><div class="rp-note">CT lương & TH theo file Target và data hàng ngày (trước chiết khấu). <b>KH có CT chưa mua</b> = KH có chỉ tiêu ngành trong file chỉ tiêu theo KH nhưng tháng này chưa phát sinh doanh số ngành đó. Mỗi thẻ gom tất cả chương trình tháng '+M.month+' chạm vào ngành: Hội viên (nhãn trọng điểm), Gắn kết, Tập trung, Combo, thưởng ĐDKD (TB 490, 493) và KPI lương CV26.</div>'}
 
 /*RP-END*/
 function render(){renderHead();setThemeBtn();var v=document.getElementById('view');
