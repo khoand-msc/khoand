@@ -940,6 +940,9 @@ tr.cbdet>td{background:#f4f8ff!important;padding:10px 12px 14px 22px!important;p
 .pg-div h3{margin:0;font-size:1.15rem;letter-spacing:.02em}.pg-div small{opacity:.85}
 .rp-cbw.gktt .rp-cbh{background:linear-gradient(90deg,#b45309,#d97706)}
 @media (max-width:700px){.pg-div{scroll-margin-top:270px}.pg-div h3{font-size:1rem}}
+.cd-pg{margin:0 0 12px;padding:10px 12px;border:1px solid #cfe3dc;border-radius:14px;background:linear-gradient(180deg,#effaf6,#fff)}
+.cd-pgh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.cd-pg .rp-t td,.cd-pg .rp-t th{font-size:.8rem}
 
 /*RP-CSS-END*/
 </style>
@@ -1823,12 +1826,18 @@ function shotTitle(c,list){var st={all:'Khách hàng 360 – tuyến',yes:'Khác
 var NH_SHORT={'Seasoning':'Gia vị','Convenience Foods':'Mì','Home Care':'HPC','Coffee':'Cà phê','Processed Meats':'Thịt CB','Refreshment Drinks':'NGK','Nutrition':'Dinh dưỡng','Beer':'Bia','Snack and Dessert':'Snack'};
 var PCOL={hv:['#7c3aed','#f1eaff'],dai:['#a21caf','#fbe8ff'],cbo:['#1d4ed8','#e7efff'],cbn:['#7c2d92','#f5e9ff'],cbh:['#c2410c','#ffeddf'],tbp:['#b91c1c','#fde8e8'],gkt:['#0f766e','#dcf5ef'],spt:['#a16207','#fdf1d3'],ok:['#15803d','#e3f6ea']};
 var C360=null;
-function c360Maps(){if(C360&&C360.M===M)return C360;var hv={},cb={};if(STATE.hv&&STATE.hv.list)hvRows().forEach(function(x){hv[x.code]=x});if(STATE.combo&&STATE.combo.list)cb=cbBase().map;var gk={};if((STATE.gkt&&STATE.gkt.list)||(STATE.sptt&&STATE.sptt.list))gkData().rows.forEach(function(x){if(!x.p.wide||x.bought)(gk[x.code]||(gk[x.code]=[])).push(x)});return C360={M:M,hv:hv,cb:cb,gk:gk}}
+function c360Maps(){if(C360&&C360.M===M)return C360;var hv={},cb={};if(STATE.hv&&STATE.hv.list)hvRows().forEach(function(x){hv[x.code]=x});if(STATE.combo&&STATE.combo.list)cb=cbBase().map;var gk={};if((STATE.gkt&&STATE.gkt.list)||(STATE.sptt&&STATE.sptt.list))gkData().rows.forEach(function(x){(gk[x.code]||(gk[x.code]=[])).push(x)});return C360={M:M,hv:hv,cb:cb,gk:gk}}
 function c360Tags(x){var P=c360Maps(),out=[],h=P.hv[x.code];
   if(h){var gap=h.base*.95-h.th;out.push({k:h.dai?'dai':'hv',g:'hv',t:(h.dai?'HV Đại sứ':'HV VIP')+(h.lv>=1?' · Đạt M'+h.lv:' · thiếu '+tr1v(gap))+(h.dai?' · '+h.n4+'/4 nhãn':''),done:h.lv>=1&&(!h.dai||h.n4>=4)})}
   var c=P.cb[x.code];if(c){if(c.mem.off)out.push({k:'cbo',g:'cb',t:'Combo OFF: bill 800K'+(c.gift.off?' ✓ '+c.gift.off+' chai':' · chưa có'),done:!!c.gift.off});if(c.mem.nh)out.push({k:'cbh',g:'cb',t:'Combo Gia vị 400K/500K'+(c.gift.nh?' ✓ '+c.gift.nh+' chai':' · chưa có'),done:!!c.gift.nh});if(c.mem.on)out.push({k:'cbn',g:'cb',t:'Combo Bev 250K'+(c.gift.on?' ✓ '+c.gift.on+' chai':' · chưa có'),done:!!c.gift.on})}
-  (P.gk[x.code]||[]).forEach(function(g){out.push({k:g.p.kind==='gk'?'gkt':'spt',g:'gk',t:(g.p.kind==='gk'?'Gắn kết ':'Tập trung ')+g.p.short+(g.ok?' ✓ '+tr1v(g.s):' · '+tr1v(g.s)+'/'+tr1v(g.thr)),done:g.ok})});
+  ['gk','tt'].forEach(function(K){var L=(P.gk[x.code]||[]).filter(function(g){return g.p.kind===K}).sort(function(a,b){return(b.ok?1:0)-(a.ok?1:0)||b.pc-a.pc});for(var i=0;i<L.length;i+=3){var ch=L.slice(i,i+3);out.push({k:K==='gk'?'gkt':'spt',g:'gk',t:(i?'':(K==='gk'?'Gắn kết: ':'Tập trung: '))+ch.map(function(g){return pgTag(g.p)+(g.ok?' ✓'+tr1v(g.s):' '+tr1v(g.s)+'/'+tr1v(g.thr))}).join(' · '),done:ch.every(function(g){return g.ok})})}});
   var nh=c360Rebuy(x);if(nh.length)out.push({k:'tbp',g:'tbp',t:'Tái bao phủ: '+nh.join(', ')});return out}
+function pgTag(p){return p.short.replace(/^KH trọng điểm · Gia vị$/,'Gia vị KHTĐ').replace(/^Xúc xích HCB.*$/,'Xúc xích').replace(/^Trà Búp Non /,'').replace(/^Ngũ cốc /,'').replace(/^Đại sứ Tết.*$/,'ĐS Tết').replace(/^Đại sứ /,'ĐS ').replace(/^Thịt chế biến$/,'Thịt CB').replace(/^ĐS Thịt chế biến$/,'ĐS Thịt CB')}
+function GKON(){return!!((STATE.gkt&&STATE.gkt.list)||(STATE.sptt&&STATE.sptt.list))}
+function pgOf(c){var P=c360Maps();return P.gk[c]||[]}
+function pgMatch(x,c){var pg=c.pg||'all',ps=c.pgs||'all';if(pg==='all'&&ps==='all')return true;var L=pgOf(x.code).filter(function(g){return pg==='all'||g.p.kind===pg||g.p.key===pg});if(!L.length)return false;return ps==='all'||L.some(function(g){return ps==='push'?!g.ok:ps==='near'?g.near:ps==='none'?!g.bought:g.ok})}
+function pgCust(x){var L=pgOf(x.code);if(!L.length)return'';var row=function(g){var p=g.p;return'<tr><td><span class="c3tag" style="color:'+p.col+';background:'+p.col+'14;border-color:'+p.col+'33">'+(p.kind==='gk'?'Gắn kết':'Tập trung')+'</span> <b>'+esc(p.short)+'</b></td><td>'+(p.kind==='gk'?vnd(g.base)+' × '+p.pct+'% = ':'≥ ')+vnd(g.thr)+'</td><td><b>'+vnd(g.s)+'</b></td><td>'+(g.thr?pl(g.pc,null,true):'—')+'</td><td class="'+(g.ok?'t-good':'t-bad')+'"><b>'+(g.ok?'Đạt':vnd(g.need))+'</b></td><td>'+(g.rw?'<b class="t-good">'+vnd(g.rw)+'</b>':'—')+'</td></tr>'};
+  L=L.slice().sort(function(a,b){return(a.p.kind===b.p.kind?0:a.p.kind==='gk'?-1:1)||b.pc-a.pc});return'<div class="cd-pg"><div class="cd-pgh">'+ico('handshake','sm')+'<b>Gắn kết & Sản phẩm tập trung</b><span class="hint">'+L.length+' chương trình · đạt '+L.filter(function(g){return g.ok}).length+' · DS sau chiết khấu đến '+dmy(M.to)+'</span></div><div class="rp-tw"><table class="rp-t"><tr><th>Chương trình</th><th>Mốc thưởng</th><th>DS tháng</th><th>% mốc</th><th>Còn thiếu</th><th>Thưởng dự kiến</th></tr>'+L.map(row).join('')+'</table></div></div>'}
 function tr1v(v){return v>=1e6?dec(v/1e6,1)+'tr':int(v/1000)+'k'}
 function c360Rebuy(x){if(!x.sct)return[];var a=[];for(var k in x.sct){var s=x.sct[k];if((s[0]>0||s[1]+s[2]+s[3]>0)&&!((x.sa||{})[k]>0))a.push([k,s[0]||((s[1]+s[2]+s[3])/3)])}return a.sort(function(p,q){return q[1]-p[1]}).map(function(p){return NH_SHORT[p[0]]||p[0]})}
 function tagHTML(g){var c=PCOL[g.done?'ok':g.k];return'<span class="c3tag" style="color:'+c[0]+';background:'+c[1]+';border-color:'+c[0]+'33">'+esc(g.t)+'</span>'}
@@ -1935,7 +1944,8 @@ function custIndex(){if(CUST)return CUST;var by={},rep={};M.reps.forEach(functio
 function ctKH(c){var K=STATE.ctkh;if(!K||!K.ct||K.month!==(M.to||'').slice(0,7))return null;return K.ct[c]||null}
 function hasCTKH(){var K=STATE.ctkh;return!!(K&&K.ct&&K.month===(M.to||'').slice(0,7))}
 function subAct(r,c){var o={};if(!r.ob||!M.bd)return o;(r.ob[c]||[]).forEach(function(e){var su=M.bd[e[0]].split('\u0001')[0];o[su]=(o[su]||0)+e[1]*1000});return o}
-function custDetail(x){
+function custDetail(x){return pgCust(x)+custDetail0(x)}
+function custDetail0(x){
   if(!x.ob||!M.bd)return'<div class="cd-empty">'+ico('info','sm')+'Chưa có chi tiết theo Sub_div/Brand. Anh vào Cài đặt → Cập nhật dữ liệu, thả lại file data doanh số để trang tính phần này.</div>';
   if(!x.ob.length&&!x.sct)return'<div class="cd-empty">'+ico('info','sm')+'Khách chưa có doanh số trong tháng '+M.month+'.</div>';
   var subs={},tot=0;if(x.sct)for(var sk0 in x.sct)subs[sk0]={v:0,b:[]};x.ob.forEach(function(e){var k=M.bd[e[0]].split('\u0001'),v=e[1]*1000;tot+=v;var S=subs[k[0]]||(subs[k[0]]={v:0,b:[]});S.v+=v;S.b.push([k[1],v])});
@@ -1952,7 +1962,7 @@ function subV(x,sub){if(!x.sct&&!x.sa)return{ct:0,a:0,h:0,hh:null};if(!sub||sub=
 function vCust(){
   var all=custIndex(),c=ui.cf||(ui.cf={ss:'all',rep:'',ch:'all',st:'all',q:'',lim:100,sort:'s3',day:'all',wk:'all'});if(!c.day)c.day='all';if(!c.wk)c.wk='all';
   var base=all.filter(function(x){return(c.ss==='all'||x.ss===c.ss)&&(!c.rep||x.pos===c.rep)}),CTON=hasCTKH();if(!c.sub)c.sub='all';if(!c.rb)c.rb='all';
-  var list=base.filter(function(x){if(!schMatch(x,c))return false;if(c.ch!=='all'&&x.ch!==c.ch)return false;if(c.st==='no'&&x.bought)return false;if(c.st==='yes'&&!x.bought)return false;if(c.st==='nomoq'&&x.moq)return false;
+  var list=base.filter(function(x){if(!schMatch(x,c))return false;if(!pgMatch(x,c))return false;if(c.ch!=='all'&&x.ch!==c.ch)return false;if(c.st==='no'&&x.bought)return false;if(c.st==='yes'&&!x.bought)return false;if(c.st==='nomoq'&&x.moq)return false;
     if(c.q){var q=c.q.toLowerCase();if((x.name+' '+x.code+' '+x.ward).toLowerCase().indexOf(q)<0)return false}
     if(CTON&&c.rb&&c.rb!=='all'){var v=subV(x,c.sub);if(c.rb==='noct'&&!(v.ct>0&&v.a<=0))return false;if(c.rb==='lost'&&!(v.h>0&&v.a<=0))return false;if(c.rb==='under'&&!(v.ct>0&&v.a<v.ct*TIME))return false}
     if(CTON&&c.sub&&c.sub!=='all'&&(!c.rb||c.rb==='all')){var v2=subV(x,c.sub);if(!(v2.ct>0||v2.a>0||v2.h>0))return false}return true});
@@ -1969,7 +1979,7 @@ function vCust(){
     '<div class="seg">'+[['all','Tất cả'],['yes','Đã mua'],['no','Chưa mua'],['nomoq','Chưa có đơn MOQ']].map(function(o){return'<button data-cfst="'+o[0]+'" aria-pressed="'+(c.st===o[0])+'">'+o[1]+'</button>'}).join('')+'</div>'+
     '</div><div class="frow"><span class="flbl">'+ico('calendar-days','sm')+'Lịch ghé</span><div class="seg">'+[['all','Tất cả'],['T2','T2'],['T3','T3'],['T4','T4'],['T5','T5'],['T6','T6'],['T7','T7']].map(function(o){return'<button data-cfday="'+o[0]+'" aria-pressed="'+(c.day===o[0])+'">'+o[1]+'</button>'}).join('')+'</div>'+
     '<div class="seg">'+[['all','Mọi tuần'],['Lẻ','Tuần lẻ'],['Chẵn','Tuần chẵn']].map(function(o){return'<button data-cfwk="'+o[0]+'" aria-pressed="'+(c.wk===o[0])+'">'+o[1]+'</button>'}).join('')+'</div>'+
-    '</div>'+(CTON?'<div class="frow"><span class="flbl">'+ico('layers','sm')+'Tái bao phủ theo ngành</span><label class="fsel"><select id="cfsub" aria-label="Ngành hàng"><option value="all">Tất cả ngành</option>'+CT_SUBS().map(function(k){return'<option value="'+esc(k)+'"'+(c.sub===k?' selected':'')+'>'+esc(k)+'</option>'}).join('')+'</select></label><div class="seg">'+[['all','Tất cả'],['noct','Có CT · chưa mua'],['lost','Mất bao phủ (3T trước có mua)'],['under','Dưới tiến độ CT']].map(function(o){return'<button data-cfrb="'+o[0]+'" aria-pressed="'+(c.rb===o[0])+'">'+o[1]+'</button>'}).join('')+'</div></div>':'')+'<div class="frow">'+
+    '</div>'+(CTON?'<div class="frow"><span class="flbl">'+ico('layers','sm')+'Tái bao phủ theo ngành</span><label class="fsel"><select id="cfsub" aria-label="Ngành hàng"><option value="all">Tất cả ngành</option>'+CT_SUBS().map(function(k){return'<option value="'+esc(k)+'"'+(c.sub===k?' selected':'')+'>'+esc(k)+'</option>'}).join('')+'</select></label><div class="seg">'+[['all','Tất cả'],['noct','Có CT · chưa mua'],['lost','Mất bao phủ (3T trước có mua)'],['under','Dưới tiến độ CT']].map(function(o){return'<button data-cfrb="'+o[0]+'" aria-pressed="'+(c.rb===o[0])+'">'+o[1]+'</button>'}).join('')+'</div></div>':'')+(GKON()?'<div class="frow"><span class="flbl">'+ico('handshake','sm')+'Gắn kết & Tập trung</span><label class="fsel"><select id="cfpg" aria-label="Chương trình">'+[['all','Tất cả chương trình'],['gk','Gắn kết (tất cả)'],['tt','SP tập trung (tất cả)']].concat(gkData().P.map(function(p){return[p.key,(p.kind==='gk'?'Gắn kết · ':'Tập trung · ')+p.short]})).map(function(o){return'<option value="'+o[0]+'"'+((c.pg||'all')===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'}).join('')+'</select></label><div class="seg">'+[['all','Tất cả'],['push','Chưa đạt mốc'],['near','Gần đạt ≥70%'],['none','Chưa mua'],['ok','Đã đạt']].map(function(o){return'<button data-cfpgs="'+o[0]+'" aria-pressed="'+((c.pgs||'all')===o[0])+'">'+o[1]+'</button>'}).join('')+'</div></div>':'')+'<div class="frow">'+
     '<button class="btn shotbtn" id="cfshot">'+ico('camera')+'Chụp ảnh ('+int(list.length)+' KH)</button>'+
     '<label class="fsearch">'+ico('search','sm')+'<input id="cfq" type="search" placeholder="Tìm tên, mã KH, phường…" value="'+esc(c.q)+'" autocomplete="off"></label></div></div>';
   var ar=function(k){return c.sort===k?' ▼':''};
@@ -2749,6 +2759,7 @@ function render(){renderHead();setThemeBtn();var v=document.getElementById('view
   var fin=document.getElementById('fin');if(fin){fin.onchange=function(){handleFiles(fin.files)};var d=document.getElementById('drop');
     d.ondragover=function(e){e.preventDefault();d.classList.add('over')};d.ondragleave=function(){d.classList.remove('over')};d.ondrop=function(e){e.preventDefault();d.classList.remove('over');handleFiles(e.dataTransfer.files)}}
   var ksr=document.getElementById('ksrep');if(ksr)ksr.onchange=function(){var r=M.reps.filter(function(x){return x.pos===ksr.value})[0];if(r){ui.ovSS=r.ss;ui.ovRep=r.pos}else{ui.ovRep=null}ANIM=true;render()};
+  var cpg=document.getElementById('cfpg');if(cpg)cpg.onchange=function(){ui.cf.pg=cpg.value;ui.cf.lim=100;render()};
   var csb=document.getElementById('cfsub');if(csb)csb.onchange=function(){ui.cf.sub=csb.value;ui.cf.lim=100;render()};
   var cr=document.getElementById('cfrep');if(cr)cr.onchange=function(){ui.cf.rep=cr.value;ui.cf.lim=100;render()};
   var cq=document.getElementById('cfq');if(cq){cq.oninput=function(){clearTimeout(window._cqT);window._cqT=setTimeout(function(){ui.cf.q=cq.value;ui.cf.lim=100;render();var n=document.getElementById('cfq');if(n){n.focus();var L=n.value.length;try{n.setSelectionRange(L,L)}catch(e){}}},220)}}
@@ -2780,7 +2791,7 @@ function curTheme(){var t=document.documentElement.getAttribute('data-theme');if
 function setThemeBtn(){var b=document.getElementById('themebtn');if(!b)return;var d=curTheme()==='dark';b.innerHTML=ico(d?'sun':'moon')+'<span>'+(d?'Sáng':'Tối')+'</span>';b.setAttribute('aria-pressed',d)}
 (function(){try{var t=localStorage.getItem('kpi-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}})();
 function top(){try{window.scrollTo(0,0)}catch(e){}}
-document.addEventListener('click',function(e){var t=e.target.closest('[data-cfrb],#ksfocus,[data-ovrep],[data-onss],[data-onssx],[data-onrep],#ghsave,#ghoff,#pubdl,[data-tex],[data-cfopen],#shotclose,#shotshare,#shotcopy,#shotsave,#cfshot,[data-cfday],[data-cfwk],[data-settheme],[data-cfss],[data-cfch],[data-cfst],[data-cfsort],#cfmore,#themebtn,[data-bss],[data-bs],#dfocus,[data-cat],[data-catlvl],[data-ks],[data-cs],#focusbtn,[data-tab],[data-ov],[data-dss],[data-kss],[data-rep],[data-ol],#more,#pub');if(!t)return;
+document.addEventListener('click',function(e){var t=e.target.closest('[data-cfpgs],[data-cfrb],#ksfocus,[data-ovrep],[data-onss],[data-onssx],[data-onrep],#ghsave,#ghoff,#pubdl,[data-tex],[data-cfopen],#shotclose,#shotshare,#shotcopy,#shotsave,#cfshot,[data-cfday],[data-cfwk],[data-settheme],[data-cfss],[data-cfch],[data-cfst],[data-cfsort],#cfmore,#themebtn,[data-bss],[data-bs],#dfocus,[data-cat],[data-catlvl],[data-ks],[data-cs],#focusbtn,[data-tab],[data-ov],[data-dss],[data-kss],[data-rep],[data-ol],#more,#pub');if(!t)return;
   if(t.dataset.settheme){document.documentElement.setAttribute('data-theme',t.dataset.settheme);try{localStorage.setItem('kpi-theme',t.dataset.settheme)}catch(e){}return render()}
   var cf=ui.cf||(ui.cf={ss:'all',rep:'',ch:'all',st:'all',q:'',lim:100,sort:'s3',day:'all',wk:'all'});
   if(t.dataset.onss!=null){ui.onSS=t.dataset.onss;return render()}
@@ -2789,6 +2800,7 @@ document.addEventListener('click',function(e){var t=e.target.closest('[data-cfrb
   if(t.dataset.cfss!=null){cf.ss=t.dataset.cfss;cf.rep='';cf.lim=100;return render()}
   if(t.dataset.cfch){cf.ch=t.dataset.cfch;cf.lim=100;return render()}
   if(t.dataset.cfst){cf.st=t.dataset.cfst;cf.lim=100;return render()}
+  if(t.dataset.cfpgs){cf.pgs=t.dataset.cfpgs;cf.lim=100;return render()}
   if(t.dataset.cfrb){cf.rb=t.dataset.cfrb;cf.lim=100;if(cf.rb!=='all')cf.sort='ct';return render()}
   if(t.dataset.cfsort){cf.sort=t.dataset.cfsort;return render()}
   if(t.id==='cfmore'){cf.lim+=100;return render()}
