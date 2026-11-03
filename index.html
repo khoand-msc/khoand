@@ -1784,7 +1784,7 @@ function c360Maps(){if(C360&&C360.M===M)return C360;var hv={},cb={};if(STATE.hv&
 function c360Tags(x){var P=c360Maps(),out=[],h=P.hv[x.code];
   if(h){var gap=h.base*.95-h.th;out.push({k:h.dai?'dai':'hv',g:'hv',t:(h.dai?'HV Đại sứ':'HV VIP')+(h.lv>=1?' · Đạt M'+h.lv:' · thiếu '+tr1v(gap))+(h.dai?' · '+h.n4+'/4 nhãn':''),done:h.lv>=1&&(!h.dai||h.n4>=4)})}
   var c=P.cb[x.code];if(c){if(c.mem.off)out.push({k:'cbo',g:'cb',t:'Combo OFF: bill 800K'+(c.gift.off?' ✓ '+c.gift.off+' chai':' · chưa có'),done:!!c.gift.off});if(c.mem.nh)out.push({k:'cbh',g:'cb',t:'Combo Gia vị 400K/500K'+(c.gift.nh?' ✓ '+c.gift.nh+' chai':' · chưa có'),done:!!c.gift.nh});if(c.mem.on)out.push({k:'cbn',g:'cb',t:'Combo Bev 250K'+(c.gift.on?' ✓ '+c.gift.on+' chai':' · chưa có'),done:!!c.gift.on})}
-  var nh=c360Rebuy(x);if(nh.length)out.push({k:'tbp',g:'tbp',t:'NH cần tái bao phủ: '+nh.join(', ')});return out}
+  var nh=c360Rebuy(x);if(nh.length)out.push({k:'tbp',g:'tbp',t:'Tái bao phủ: '+nh.join(', ')});return out}
 function tr1v(v){return v>=1e6?dec(v/1e6,1)+'tr':int(v/1000)+'k'}
 function c360Rebuy(x){if(!x.sct)return[];var a=[];for(var k in x.sct){var s=x.sct[k];if((s[0]>0||s[1]+s[2]+s[3]>0)&&!((x.sa||{})[k]>0))a.push([k,s[0]||((s[1]+s[2]+s[3])/3)])}return a.sort(function(p,q){return q[1]-p[1]}).map(function(p){return NH_SHORT[p[0]]||p[0]})}
 function tagHTML(g){var c=PCOL[g.done?'ok':g.k];return'<span class="c3tag" style="color:'+c[0]+';background:'+c[1]+';border-color:'+c[0]+'33">'+esc(g.t)+'</span>'}
