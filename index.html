@@ -562,6 +562,7 @@ nav.tabs .tab{padding:7px 12px;font-size:.88rem}
 .sm-act .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px}
 .sm-img{border:1px solid var(--line);border-radius:12px;overflow:auto;max-height:70vh;background:#fff}
 .sm-img img{display:block;width:100%;height:auto}
+.sm-img.multi{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding:10px;background:var(--bg2,#f1f5f9)}.sm-img.multi figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}.sm-img.multi figcaption{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 8px;font-weight:700;font-size:.8rem}.sm-img.multi .btn.sm{padding:4px 8px;font-size:.75rem;min-height:0}
 .cname{display:flex;align-items:flex-start;gap:6px;border:0;background:none;padding:0;text-align:left;cursor:pointer;color:inherit;font:inherit}
 .cname svg.ic{margin:3px 0 0;color:var(--accent)}
 .cname:hover b{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
@@ -1843,58 +1844,67 @@ function tr1v(v){return v>=1e6?dec(v/1e6,1)+'tr':int(v/1000)+'k'}
 function c360Rebuy(x){if(!x.sct)return[];var a=[];for(var k in x.sct){var s=x.sct[k];if((s[0]>0||s[1]+s[2]+s[3]>0)&&!((x.sa||{})[k]>0))a.push([k,s[0]||((s[1]+s[2]+s[3])/3)])}return a.sort(function(p,q){return q[1]-p[1]}).map(function(p){return NH_SHORT[p[0]]||p[0]})}
 function tagHTML(g){var c=PCOL[g.done?'ok':g.k];return'<span class="c3tag" style="color:'+c[0]+';background:'+c[1]+';border-color:'+c[0]+'33">'+esc(g.t)+'</span>'}
 function drawShot(list,c){
-  var T=shotTitle(c,list),W=1180,pad=26,headH=128,thH=36,footH=70;
-  var cv0=document.createElement('canvas').getContext('2d'),F='"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
-  var cx={n:pad+40,nw:390,ct:pad+450,tg:pad+620},tgW=W-pad-cx.tg;
-  function tagsLayout(tags){cv0.font='600 13px '+F;var lines=[[]],w=0;tags.forEach(function(g){var tw=Math.min(tgW,cv0.measureText(g.t).width+16);if(w+tw>tgW&&lines[lines.length-1].length){lines.push([]);w=0}lines[lines.length-1].push({g:g,w:tw});w+=tw+6});return lines}
-  var rows=list.map(function(x){var tags=c360Tags(x),L=tagsLayout(tags);return{x:x,L:L,h:Math.max(52,16+L.length*26)}});
-  var H=headH+thH+rows.reduce(function(s,r){return s+r.h},0)+(rows.length?0:46)+footH,sc=Math.min(2,30000/H),cv=document.createElement('canvas');cv.width=Math.round(W*sc);cv.height=Math.round(H*sc);
-  var g=cv.getContext('2d');g.scale(sc,sc);
-  function txt(s,x,y,font,col,al){g.font=font;g.fillStyle=col;g.textAlign=al||'left';g.fillText(s,x,y)}
-  function fit(s,w,font){g.font=font;s=String(s||'');if(g.measureText(s).width<=w)return s;while(s.length>1&&g.measureText(s+'…').width>w)s=s.slice(0,-1);return s+'…'}
-  function rr(x,y,w,h,r,fill,stroke){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();g.fillStyle=fill;g.fill();if(stroke){g.strokeStyle=stroke;g.lineWidth=1;g.stroke()}}
-  g.fillStyle='#ffffff';g.fillRect(0,0,W,H);var grd=g.createLinearGradient(0,0,W,0);grd.addColorStop(0,'#0b1d55');grd.addColorStop(1,'#1d4ed8');g.fillStyle=grd;g.fillRect(0,0,W,headH-20);
-  txt('NPP PHƯỚC TÀI · Tháng '+M.month+'/'+M.year+' · số liệu đến '+dmy(M.to)+' · tiến độ '+pct(TIME),pad,34,'600 15px '+F,'rgba(255,255,255,.85)');
-  txt(T.t,pad,68,'800 26px '+F,'#ffffff');
+  /* Ảnh dạng dọc cho điện thoại: mỗi KH 1 thẻ, chia nhiều trang ~7–8 KH để gửi Zalo không bị thu nhỏ */
+  var T=shotTitle(c,list),W=600,pad=14,SC=1.8,PH=1300,F='"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif',inW=W-pad*2-16;
+  var cv0=document.createElement('canvas').getContext('2d'),TF='600 12.5px '+F,TH=22,TG=4;
+  function wrapTag(t,w){cv0.font=TF;var words=String(t).split(' '),ls=[],cur='';words.forEach(function(wd){var tr=cur?cur+' '+wd:wd;if(cv0.measureText(tr).width+18>w&&cur){ls.push(cur);cur=wd}else cur=tr});if(cur)ls.push(cur);return ls}
+  function tagsLayout(tags){var lines=[],row=[],w=0;tags.forEach(function(g){var tw=cv0.measureText?(cv0.font=TF,cv0.measureText(g.t).width+18):0;if(tw>inW){if(row.length){lines.push(row);row=[];w=0}wrapTag(g.t,inW).forEach(function(l){cv0.font=TF;lines.push([{g:{t:l,k:g.k,done:g.done},w:Math.min(inW,cv0.measureText(l).width+18)}])});return}if(w+tw>inW&&row.length){lines.push(row);row=[];w=0}row.push({g:g,w:tw});w+=tw+6});if(row.length)lines.push(row);return lines}
+  var cards=list.map(function(x,i){var L=tagsLayout(c360Tags(x));return{x:x,i:i,L:L,h:54+(L.length?L.length*(TH+TG):0)+6}});
   var tt=list.reduce(function(a,x){return a+(x.ct||0)},0),th=list.reduce(function(a,x){return a+(x.ms||0)},0);
-  txt(T.who+'  ·  '+int(list.length)+' khách'+(tt?'  ·  CT '+vnd(tt)+' · TH '+vnd(th)+' ('+pct(tt?th/tt:0)+')':''),pad,96,'600 16px '+F,'#ffffff');
-  var y=headH;g.fillStyle='#eef2f8';g.fillRect(0,y,W,thH);
-  [['#',pad+28,'right'],['KHÁCH HÀNG · ĐDKD',cx.n],['CT / TH / %',cx.ct],['CHƯƠNG TRÌNH ÁP DỤNG',cx.tg]].forEach(function(k){txt(k[0],k[1],y+23,'800 12px '+F,'#475569',k[2]||'left')});y+=thH;
-  rows.forEach(function(R,i){var x=R.x,h=R.h;g.fillStyle=i%2?'#f8fafc':'#ffffff';g.fillRect(0,y,W,h);g.fillStyle='#e2e8f0';g.fillRect(0,y+h-1,W,1);
-    txt(String(i+1),pad+28,y+24,'700 14px '+F,'#94a3b8','right');
-    var nm=fit(x.name,cx.nw-80,'800 16px '+F);txt(nm,cx.n,y+22,'800 16px '+F,'#0f172a');g.font='800 16px '+F;var nx=cx.n+g.measureText(nm).width+8,rn=shortName(x.rep);g.font='700 12px '+F;var rw=g.measureText(rn).width+12;rr(nx,y+8,rw,19,9,'#eef2ff','#6366f155');txt(rn,nx+6,y+22,'700 12px '+F,'#4338ca');
-    txt(fit(x.code+' · '+x.ch+(x.type&&!/^l[eẻ]$/i.test(x.type.trim())?' · '+x.type:'')+(x.sch?' · '+visD(x.sch):''),cx.nw,'500 12px '+F),cx.n,y+40,'500 12px '+F,'#64748b');
-    var p=x.ct?(x.ms||0)/x.ct:0,pc={good:'#15803d',warn:'#b45309',bad:'#dc2626'}[paceCls(p)];
-    txt(x.ct?vnd(x.ct)+' / '+(x.ms?vnd(x.ms):'0'):(x.ms?'TH '+vnd(x.ms):'Chưa mua'),cx.ct,y+22,'700 14px '+F,'#0f172a');
-    if(x.ct)txt(pct(p),cx.ct,y+40,'800 13px '+F,pc);else if(!x.ms)txt('',cx.ct,y+40,'500 12px '+F,'#dc2626');
-    var yy=y+8;R.L.forEach(function(line){var xx=cx.tg;line.forEach(function(it){var col=PCOL[it.g.done?'ok':it.g.k];rr(xx,yy,it.w,22,11,col[1],col[0]+'55');txt(fit(it.g.t,it.w-14,'600 13px '+F),xx+8,yy+16,'600 13px '+F,col[0]);xx+=it.w+6});yy+=26});
-    if(!R.L[0].length)txt('—',cx.tg,y+26,'500 13px '+F,'#94a3b8');
-    y+=h});
-  if(!rows.length){txt('Không có khách nào khớp bộ lọc.',W/2,y+28,'500 15px '+F,'#64748b','center');y+=46}
-  var lg=[['hv','Hội viên'],['cbo','Combo OFF'],['cbh','Combo Gia vị'],['cbn','Combo Bev ON'],['tbp','Tái bao phủ ngành'],['ok','Đã đạt / đã nhận']],lx=pad;y+=18;
-  lg.forEach(function(l){var c2=PCOL[l[0]];g.font='600 12px '+F;var w=g.measureText(l[1]).width+16;rr(lx,y,w,20,10,c2[1],c2[0]+'55');txt(l[1],lx+8,y+14,'600 12px '+F,c2[0]);lx+=w+8});
-  txt('Ghé đủ tuyến · đẩy đúng chương trình từng khách · Dashboard NPP Phước Tài',W-pad,y+14,'500 12px '+F,'#94a3b8','right');
-  return{canvas:cv,title:T}}
+  var headH=112,footH=62,avail=PH-headH-footH;function split(lim){var pg=[],cur=[],hh=0;cards.forEach(function(k){if(cur.length&&hh+k.h+6>lim){pg.push(cur);cur=[];hh=0}cur.push(k);hh+=k.h+6});if(cur.length||!pg.length)pg.push(cur);return pg}
+  var pages=split(avail),np=pages.length,tot=cards.reduce(function(s,k){return s+k.h+6},0);if(np>1){for(var lim=Math.ceil(tot/np);lim<avail;lim+=10){var t2=split(lim);if(t2.length<=np){pages=t2;break}}}
+  var lg=[['hv','Hội viên'],['cbo','Combo OFF'],['cbh','Combo Gia vị'],['cbn','Combo Bev ON'],['gkt','Gắn kết'],['spt','SP tập trung'],['tbp','Tái bao phủ'],['ok','Đã đạt / đã nhận']];
+  var canvases=pages.map(function(P,pi){var ch=P.reduce(function(s,k){return s+k.h+6},0),H=headH+Math.max(ch,P.length?0:60)+footH;
+    var cv=document.createElement('canvas');cv.width=W*SC;cv.height=H*SC;var g=cv.getContext('2d');g.scale(SC,SC);
+    function txt(s,x,y,font,col,al){g.font=font;g.fillStyle=col;g.textAlign=al||'left';g.fillText(s,x,y)}
+    function fit(s,w,font){g.font=font;s=String(s||'');if(g.measureText(s).width<=w)return s;while(s.length>1&&g.measureText(s+'…').width>w)s=s.slice(0,-1);return s+'…'}
+    function rr(x,y,w,h,r,fill,stroke){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();g.fillStyle=fill;g.fill();if(stroke){g.strokeStyle=stroke;g.lineWidth=1;g.stroke()}}
+    g.fillStyle='#eef2f8';g.fillRect(0,0,W,H);var grd=g.createLinearGradient(0,0,W,0);grd.addColorStop(0,'#0b1d55');grd.addColorStop(1,'#1d4ed8');g.fillStyle=grd;g.fillRect(0,0,W,headH-12);
+    txt('NPP PHƯỚC TÀI · T'+M.month+'/'+M.year+' · số liệu đến '+dmy(M.to)+' · tiến độ '+pct(TIME),pad,24,'600 12px '+F,'rgba(255,255,255,.85)');
+    txt(fit(T.t,W-pad*2-70,'800 20px '+F),pad,52,'800 20px '+F,'#ffffff');
+    if(pages.length>1){g.font='800 13px '+F;var pt='Ảnh '+(pi+1)+'/'+pages.length,pw=g.measureText(pt).width+18;rr(W-pad-pw,36,pw,24,12,'#facc15');txt(pt,W-pad-pw/2,53,'800 13px '+F,'#0b1d55','center')}
+    txt(fit(T.who,W-pad*2,'700 14px '+F),pad,76,'700 14px '+F,'#ffffff');
+    txt(int(list.length)+' khách'+(P.length&&pages.length>1?' (khách '+(P[0].i+1)+'–'+(P[P.length-1].i+1)+')':'')+(tt?' · CT '+vnd(tt)+' · TH '+vnd(th)+' ('+pct(tt?th/tt:0)+')':''),pad,96,'500 12.5px '+F,'rgba(255,255,255,.9)');
+    var y=headH;
+    P.forEach(function(k){var x=k.x,h=k.h,cx=pad;rr(cx,y,W-pad*2,h,12,'#ffffff','#dbe3ef');
+      g.font='800 13px '+F;rr(cx+8,y+9,26,22,7,'#1d4ed8');txt(String(k.i+1),cx+21,y+25,'800 13px '+F,'#ffffff','center');
+      var p=x.ct?(x.ms||0)/x.ct:0,pcol={good:'#15803d',warn:'#b45309',bad:'#dc2626'}[paceCls(p)];
+      var rt=x.ct?vnd(x.ct)+' / '+(x.ms?vnd(x.ms):'0'):(x.ms?'TH '+vnd(x.ms):'Chưa mua');g.font='700 13px '+F;var rtw=g.measureText(rt).width;
+      txt(rt,W-pad-10,y+24,'700 13px '+F,x.ct||x.ms?'#0f172a':'#dc2626','right');if(x.ct)txt(pct(p),W-pad-10,y+42,'800 13px '+F,pcol,'right');
+      var nmW=W-pad*2-60-Math.max(rtw,60)-70,nm=fit(x.name,nmW,'800 16px '+F);txt(nm,cx+42,y+26,'800 16px '+F,'#0f172a');g.font='800 16px '+F;var nx=cx+42+g.measureText(nm).width+8,rn=shortName(x.rep);g.font='700 11px '+F;var rw=g.measureText(rn).width+12;rr(nx,y+12,rw,18,9,'#eef2ff','#6366f155');txt(rn,nx+6,y+25,'700 11px '+F,'#4338ca');
+      txt(fit(x.code+' · '+x.ch+(x.type&&!/^l[eẻ]$/i.test(x.type.trim())?' · '+x.type:'')+(x.sch?' · '+visD(x.sch):''),W-pad*2-60-60,'600 12.5px '+F),cx+42,y+44,'600 12.5px '+F,'#475569');
+      var yy=y+52;k.L.forEach(function(line){var xx=cx+8;line.forEach(function(it){var col=PCOL[it.g.done?'ok':it.g.k];rr(xx,yy,it.w,TH,12,col[1],col[0]+'55');txt(fit(it.g.t,it.w-16,TF),xx+9,yy+15.5,TF,col[0]);xx+=it.w+6});yy+=TH+TG});
+      y+=h+6});
+    if(!P.length)txt('Không có khách nào khớp bộ lọc.',W/2,y+30,'500 14px '+F,'#64748b','center');
+    var ly=H-footH+6,lx=pad;lg.forEach(function(l){var c2=PCOL[l[0]];g.font='600 11px '+F;var w=g.measureText(l[1]).width+14;if(lx+w>W-pad){lx=pad;ly+=24}rr(lx,ly,w,19,9,c2[1],c2[0]+'55');txt(l[1],lx+7,ly+13.5,'600 11px '+F,c2[0]);lx+=w+6});
+    
+    return cv});
+  return{canvas:canvases[0],canvases:canvases,title:T}}
 function openShot(list,c){
-  var go=function(){var r=drawShot(list,c);r.canvas.toBlob(function(bl){SHOT={blob:bl,name:('KH '+r.title.t+' '+r.title.who).replace(/[^\wÀ-ỹ\s-]/g,'').replace(/\s+/g,'_').slice(0,80)+'.png',url:URL.createObjectURL(bl)};showShot()},'image/png')};
+  var go=function(){var r=drawShot(list,c),base=('KH '+r.title.t+' '+r.title.who).replace(/[^\wÀ-ỹ\s-]/g,'').replace(/\s+/g,'_').slice(0,74),n=r.canvases.length;
+    Promise.all(r.canvases.map(function(cv){return new Promise(function(res){cv.toBlob(res,'image/png')})})).then(function(bls){var pages=bls.map(function(bl,i){return{blob:bl,name:base+(n>1?'_'+(i+1)+'of'+n:'')+'.png',url:URL.createObjectURL(bl)}});SHOT={blob:pages[0].blob,name:pages[0].name,url:pages[0].url,pages:pages};showShot()})};
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go,go);else go()}
 function showShot(){var m=document.getElementById('shotmodal');if(!m){m=document.createElement('div');m.id='shotmodal';document.body.appendChild(m)}
-  var canShare=false;try{canShare=!!(navigator.canShare&&navigator.canShare({files:[new File([SHOT.blob],SHOT.name,{type:'image/png'})]}))}catch(e){}
+  var PG=SHOT.pages&&SHOT.pages.length>1?SHOT.pages:null,files=(PG||[SHOT]).map(function(p){return new File([p.blob],p.name,{type:'image/png'})});
+  var canShare=false;try{canShare=!!(navigator.canShare&&navigator.canShare({files:files}))}catch(e){}
   var canCopy=!!(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write);
-  m.className='smodal';m.innerHTML='<div class="sm-box" role="dialog" aria-label="Ảnh danh sách khách"><div class="sm-h"><b>'+ico('image')+'Ảnh danh sách để gửi Zalo</b><button class="fbtn" id="shotclose">'+ico('x')+'Đóng</button></div>'+
-    '<div class="sm-act">'+(canShare?'<button class="btn" id="shotshare">'+ico('share-2')+'Chia sẻ (Zalo)</button>':'')+(canCopy?'<button class="btn ghost" id="shotcopy">'+ico('copy')+'Sao chép ảnh</button>':'')+'<button class="btn ghost" id="shotsave">'+ico('download')+'Tải ảnh PNG</button></div>'+
-    '<div class="hint" id="shotmsg">'+(canShare?'Bấm Chia sẻ rồi chọn Zalo và nhân viên cần gửi.':canCopy?'Bấm Sao chép ảnh rồi dán (Ctrl+V) vào khung chat Zalo.':'Tải ảnh về rồi gửi qua Zalo. Trên điện thoại có thể nhấn giữ ảnh để lưu.')+'</div>'+
-    '<div class="sm-img"><img src="'+SHOT.url+'" alt="Ảnh danh sách khách"></div></div>';
+  m.className='smodal';m.innerHTML='<div class="sm-box" role="dialog" aria-label="Ảnh danh sách khách"><div class="sm-h"><b>'+ico('image')+'Ảnh danh sách để gửi Zalo'+(PG?' · '+PG.length+' ảnh':'')+'</b><button class="fbtn" id="shotclose">'+ico('x')+'Đóng</button></div>'+
+    '<div class="sm-act">'+(canShare?'<button class="btn" id="shotshare">'+ico('share-2')+(PG?'Chia sẻ cả '+PG.length+' ảnh (Zalo)':'Chia sẻ (Zalo)')+'</button>':'')+(canCopy&&!PG?'<button class="btn ghost" id="shotcopy">'+ico('copy')+'Sao chép ảnh</button>':'')+'<button class="btn ghost" id="shotsave">'+ico('download')+(PG?'Tải cả '+PG.length+' ảnh':'Tải ảnh PNG')+'</button></div>'+
+    '<div class="hint" id="shotmsg">'+(PG?'Danh sách được chia thành '+PG.length+' ảnh dọc (vừa màn hình điện thoại) để chữ không bị nhỏ. ':'')+(canShare?'Bấm Chia sẻ rồi chọn Zalo và nhân viên cần gửi.':canCopy?(PG?'Sao chép từng ảnh bằng nút dưới mỗi ảnh rồi dán (Ctrl+V) vào Zalo.':'Bấm Sao chép ảnh rồi dán (Ctrl+V) vào khung chat Zalo.'):'Tải ảnh về rồi gửi qua Zalo. Trên điện thoại có thể nhấn giữ ảnh để lưu.')+'</div>'+
+    '<div class="sm-img'+(PG?' multi':'')+'">'+(PG?PG.map(function(p,i){return'<figure><img src="'+p.url+'" alt="Ảnh '+(i+1)+'"><figcaption>Ảnh '+(i+1)+'/'+PG.length+(canCopy?' <button class="btn ghost sm" data-shotcp="'+i+'">'+ico('copy')+'Sao chép</button>':'')+' <button class="btn ghost sm" data-shotsv="'+i+'">'+ico('download')+'Tải</button></figcaption></figure>'}).join(''):'<img src="'+SHOT.url+'" alt="Ảnh danh sách khách">')+'</div></div>';
   m.hidden=false;drawIcons()}
 function shotMsg(t,cls){var e=document.getElementById('shotmsg');if(e){e.textContent=t;e.className='hint '+(cls||'')}}
-function shotAction(id){if(!SHOT)return;
+function shotSave(list){var viaClaude=window.claude&&claude.use;
+  (viaClaude?claude.use('downloads'):Promise.resolve(null)).then(function(dl){
+    if(dl)return list.reduce(function(pr,p){return pr.then(function(){return dl.save({filename:p.name,data:p.blob})})},Promise.resolve()).then(function(){shotMsg(list.length>1?'Đã lưu '+list.length+' ảnh.':'Đã lưu ảnh.','h-good')},function(e){shotMsg(e&&e.code==='declined'?'Anh đã huỷ lưu ảnh.':'Không lưu được ảnh ở đây. Trên điện thoại anh nhấn giữ ảnh để lưu.','h-bad')});
+    list.forEach(function(p,i){setTimeout(function(){var a=document.createElement('a');a.href=p.url;a.download=p.name;document.body.appendChild(a);a.click();a.remove()},i*350)});shotMsg(list.length>1?'Đã tải '+list.length+' ảnh về máy.':'Đã tải ảnh về máy.','h-good')})}
+function shotCopy(p){navigator.clipboard.write([new ClipboardItem({'image/png':p.blob})]).then(function(){shotMsg('Đã sao chép ảnh. Mở Zalo và dán (Ctrl+V) vào khung chat.','h-good')},function(){shotMsg('Trình duyệt chặn sao chép ảnh. Anh bấm Tải ảnh.','h-bad')})}
+function shotAction(id){if(!SHOT)return;var PG=SHOT.pages&&SHOT.pages.length?SHOT.pages:[SHOT];
   if(id==='shotclose'){var m=document.getElementById('shotmodal');if(m)m.hidden=true;return}
-  if(id==='shotshare'){navigator.share({files:[new File([SHOT.blob],SHOT.name,{type:'image/png'})],title:SHOT.name}).catch(function(){});return}
-  if(id==='shotcopy'){navigator.clipboard.write([new ClipboardItem({'image/png':SHOT.blob})]).then(function(){shotMsg('Đã sao chép ảnh. Mở Zalo và dán (Ctrl+V) vào khung chat.','h-good')},function(){shotMsg('Trình duyệt chặn sao chép ảnh. Anh bấm Tải ảnh PNG.','h-bad')});return}
-  if(id==='shotsave'){var viaClaude=window.claude&&claude.use;
-    (viaClaude?claude.use('downloads'):Promise.resolve(null)).then(function(dl){
-      if(dl)return dl.save({filename:SHOT.name,data:SHOT.blob}).then(function(){shotMsg('Đã lưu ảnh.','h-good')},function(e){shotMsg(e&&e.code==='declined'?'Anh đã huỷ lưu ảnh.':'Không lưu được ảnh ở đây. Trên điện thoại anh nhấn giữ ảnh để lưu.','h-bad')});
-      var a=document.createElement('a');a.href=SHOT.url;a.download=SHOT.name;document.body.appendChild(a);a.click();a.remove();shotMsg('Đã tải ảnh về máy.','h-good')})}}
+  if(id==='shotshare'){navigator.share({files:PG.map(function(p){return new File([p.blob],p.name,{type:'image/png'})}),title:SHOT.name}).catch(function(){});return}
+  if(id==='shotcopy'){shotCopy(PG[0]);return}
+  if(id==='shotsave')shotSave(PG)}
+document.addEventListener('click',function(e){var t=e.target.closest('[data-shotcp],[data-shotsv]');if(!t||!SHOT||!SHOT.pages)return;var p=SHOT.pages[+(t.dataset.shotcp||t.dataset.shotsv)];if(!p)return;if(t.dataset.shotcp!=null)shotCopy(p);else shotSave([p])});
 
 /* ---------- KH ON: quầy kênh ON, 7 loại hình trọng tâm ---------- */
 var ON7=[['Canteen','canteen'],['Giải trí','giai tri'],['Máy bán hàng tự động','may ban hang'],['Quán nước','quan nuoc'],['Quốc lộ','quoc lo'],['Thể thao','the thao'],['Vận chuyển hành khách','van chuyen']],ON_T=30;
