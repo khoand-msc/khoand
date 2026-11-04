@@ -988,6 +988,10 @@ tr.cbdet>td{background:#f4f8ff!important;padding:10px 12px 14px 22px!important;p
 .rp-sec.cbmx:not(.rp-focus){margin:12px 0 0;padding:0;background:none;border:0;box-shadow:none}
 .rp-sec.cbmx:not(.rp-focus) .rp-sin{padding:0;background:none;border:0;box-shadow:none}
 .rp-sec.cbmx:not(.rp-focus) .cbmxh{display:none}
+.dychips button{display:inline-flex;flex-direction:column;align-items:center;line-height:1.15;padding:6px 10px}
+.dychips button small{font-size:.66rem;opacity:.75}
+.dykpi{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px;font-size:.82rem}.dykpi span{background:#f1f5f9;border-radius:10px;padding:4px 10px}
+.rp-t.dytb td{white-space:normal}.rp-t.dytb td:nth-child(2){min-width:220px}.rp-t.dytb td:last-child{min-width:320px}
 
 /*RP-CSS-END*/
 </style>
@@ -1480,7 +1484,7 @@ function renderHead(){
   if(mk.length>1)document.getElementById('month').innerHTML='<span class="mswitch">'+mk.map(function(k){var on=(VIEW||curK)===k;return'<button data-viewm="'+(k===curK?'':k)+'" aria-pressed="'+on+'">T'+(+k.slice(5))+(k===curK?'':' · xem lại')+'</button>'}).join('')+'</span>'+document.getElementById('month').innerHTML;
   if(ui.tab==='rules'||ui.tab==='update')ui.tab='settings';
   var MAPT={overview:'db',kpi:'tq',bonus:'th',daily:'db'};if(MAPT[ui.tab])ui.tab=MAPT[ui.tab];
-  var NAV=[{g:'Báo cáo',items:[['db','Dashboard','pie-chart'],['tq','Tổng quan','bar-chart-3'],['fun','Fundamental','target'],['th','Thưởng','gift'],['hv','Hội viên','crown'],['cb','Combo','package'],['gk','Gắn kết & Tập trung','handshake'],['plan','Kế hoạch','clipboard-list']]},{g:'Khách hàng',items:[['cust','Khách hàng','users-round']]},{g:'Hệ thống',items:[['settings','Cài đặt','settings']]}];
+  var NAV=[{g:'Báo cáo',items:[['db','Dashboard','pie-chart'],['day','Mục tiêu ngày','calendar-check'],['tq','Tổng quan','bar-chart-3'],['fun','Fundamental','target'],['th','Thưởng','gift'],['hv','Hội viên','crown'],['cb','Combo','package'],['gk','Gắn kết & Tập trung','handshake'],['plan','Kế hoạch','clipboard-list']]},{g:'Khách hàng',items:[['cust','Khách hàng','users-round']]},{g:'Hệ thống',items:[['settings','Cài đặt','settings']]}];
   var ok={};NAV.forEach(function(g){g.items.forEach(function(i){ok[i[0]]=1})});if(ui.tab!=='rep'&&!ok[ui.tab])ui.tab='db';
   var cur=ui.tab==='rep'?'tq':ui.tab,lbl='';NAV.forEach(function(g){g.items.forEach(function(i){if(i[0]===cur)lbl=i[1]})});
   var TT=agg(M.reps).turnover,dd=TT.p-TIME;
@@ -3064,11 +3068,61 @@ function plCat(sc){var inL={};sc.L.forEach(function(r){inL[r.pos]=1});var CU=cus
   return'<div class="rp-ban">Cơ hội từng ngành hàng · '+esc(sc.who)+' <small>(sắp theo số còn thiếu đến 100% CT lương · Triệu)</small></div><div class="rp-filt"><button class="rp-fbtn" data-rpfocus="plc">'+(ui.rpFocus==='plc'?'✕ Thoát Focus':'⛶ Focus xem full')+'</button><button class="rp-snapbtn" data-snap="plc" data-snapt="Cơ hội theo ngành hàng – '+esc(sc.who)+'">📷 Chụp ảnh bảng</button></div>'+sumT+
     '<div class="plcats">'+rows.map(card).join('')+'</div><div class="rp-note">CT lương & TH theo file Target và data hàng ngày (trước chiết khấu). <b>KH có CT chưa mua</b> = KH có chỉ tiêu ngành trong file chỉ tiêu theo KH nhưng tháng này chưa phát sinh doanh số ngành đó. Mỗi thẻ gom tất cả chương trình tháng '+M.month+' chạm vào ngành: Hội viên (nhãn trọng điểm), Gắn kết, Tập trung, Combo, thưởng ĐDKD (TB 490, 493) và KPI lương CV26.</div>'}
 
+/* ---------------- TAB MỤC TIÊU NGÀY: ra đường biết chỉ tiêu ngày, KH tuyến, hội viên, combo ---------------- */
+var DOW=['CN','T2','T3','T4','T5','T6','T7'];
+function dyParity(ds){var d=new Date(ds+'T00:00:00'),t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())),dn=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-dn);var y0=new Date(Date.UTC(t.getUTCFullYear(),0,1)),wk=Math.ceil(((t-y0)/864e5+1)/7);return wk%2?'Lẻ':'Chẵn'}
+function dyDates(){var fut=M.workdays.filter(function(d){return d>M.to});return fut.length?fut:M.workdays.slice(-1)}
+var DYC=null;
+function dyData(ds){if(DYC&&DYC.M===M&&DYC.ds===ds)return DYC;var dw=DOW[new Date(ds+'T00:00:00').getDay()],wk=dyParity(ds),P=planData().by,by={};
+  var HV={},CB={},GK={};if(STATE.hv&&STATE.hv.list)hvRows().forEach(function(x){HV[x.code]=x});if(STATE.combo&&STATE.combo.list)CB=cbBase().map;if(GKON())gkData().rows.forEach(function(g){if(g.p.kind==='gk')(GK[g.code]||(GK[g.code]=[])).push(g)});
+  M.reps.forEach(function(r){var A=P[r.pos],left=Math.max(0,A.tgt-A.th);by[r.pos]={r:r,need:REMAIN>0?left/REMAIN:0,left:left,n:0,ctv:0,mtd:0,nob:0,vip:0,dai:0,hvP:0,hvGap:0,cbo:0,cboN:0,cbn:0,cbnN:0,bd:0,bdN:0,gk:0,gkN:0,L:[]}});
+  custIndex().forEach(function(x){var A=by[x.pos];if(!A||!schMatch(x,{day:dw,wk:wk}))return;var f=+x.f||4,h=HV[x.code],c=CB[x.code],g=GK[x.code]||[];
+    A.n++;A.ctv+=(x.ct||0)/f;A.mtd+=x.ms||0;if(!x.bought)A.nob++;
+    if(h){if(h.dai)A.dai++;else A.vip++;if(h.lv<3){A.hvP++;A.hvGap+=Math.max(0,h.base*1.05-h.th)}}
+    if(c){if(c.mem.off===x.pos||c.mem.nh===x.pos){A.cbo++;if(!((c.gift.off||0)+(c.gift.nh||0)))A.cboN++;if(x.ch==='OFF'&&(x.ct||0)>=700000&&(x.ct||0)<3000000){A.bd++;if(!((c.gift.off||0)+(c.gift.nh||0)))A.bdN++}}if(c.mem.on===x.pos){A.cbn++;if(!c.gift.on)A.cbnN++}}
+    if(g.length){A.gk++;if(!g.every(function(q){return q.ok}))A.gkN++}
+    A.L.push(x)});
+  return DYC={M:M,ds:ds,dw:dw,wk:wk,by:by}}
+function dyAgg(L,D){var z={need:0,left:0,n:0,ctv:0,mtd:0,nob:0,vip:0,dai:0,hvP:0,hvGap:0,cbo:0,cboN:0,cbn:0,cbnN:0,bd:0,bdN:0,gk:0,gkN:0};L.forEach(function(r){var A=D.by[r.pos];if(!A)return;for(var k in z)z[k]+=A[k]||0});return z}
+function vDAY(){var ds0=dyDates(),ds=ui.dyDate&&ds0.indexOf(ui.dyDate)>=0?ui.dyDate:ds0[0],D=dyData(ds),sc=rpScope(),Z=dyAgg(sc.L,D),dt=new Date(ds+'T00:00:00');
+  var dayName={T2:'Thứ 2',T3:'Thứ 3',T4:'Thứ 4',T5:'Thứ 5',T6:'Thứ 6',T7:'Thứ 7'}[D.dw]||D.dw;
+  var h='<div class="rp">'+rpTop('Mục tiêu ngày '+dayName+' '+dmy(ds)+' – '+esc(sc.who),'Tuần '+D.wk.toLowerCase()+' · tính từ số liệu đến '+dmy(M.to)+' · còn '+REMAIN+' ngày công · khách hàng theo lịch ghé MCP')+rpFilt();
+  h+='<div class="rp-filt dychips"><span class="lb">Ngày đi tuyến:</span>'+ds0.slice(0,12).map(function(d){var t=new Date(d+'T00:00:00');return'<button data-dyd="'+d+'" aria-pressed="'+(d===ds)+'"><b>'+DOW[t.getDay()]+'</b> '+dmy(d).slice(0,5)+'<small>'+dyParity(d).toLowerCase()+'</small></button>'}).join('')+'</div>';
+  h+='<div class="rp-g4">'+kc('bad','target','Chỉ tiêu doanh số ngày',tr1(Z.need)+' Tr','Còn thiếu '+tr1(Z.left)+' Tr / '+REMAIN+' ngày công · CT theo KH trên tuyến hôm nay '+tr1(Z.ctv)+' Tr')+
+    kc('blue','map-pin','Khách hàng viếng thăm',int(Z.n)+' KH','Chưa có đơn tháng này: '+int(Z.nob)+' KH · DS tháng của tuyến '+tr1(Z.mtd)+' Tr')+
+    kc('pu','crown','Hội viên trên tuyến',int(Z.vip+Z.dai)+' KH','VIP '+int(Z.vip)+' · VIP Đại sứ '+int(Z.dai)+' · cần đẩy lên Mức 3: '+int(Z.hvP)+' KH (thiếu '+tr1(Z.hvGap)+' Tr)')+
+    kc('good','package','Combo trên tuyến',int(Z.cbo+Z.cbn)+' KH','OFF '+int(Z.cbo)+' (chưa nhận '+int(Z.cboN)+') · ON '+int(Z.cbn)+' (chưa nhận '+int(Z.cbnN)+') · OFF 700k–<3tr chưa nhận '+int(Z.bdN))+'</div>';
+  var cell=function(L){var z=dyAgg(L,D),one=L.length===1;
+    return'<td class="gs"><b class="t-bad">'+tr1(z.need)+'</b></td><td>'+tr1(z.ctv)+'</td><td class="gs"><b>'+int(z.n)+'</b></td><td class="t-bad">'+int(z.nob)+'</td>'+
+      '<td class="gs">'+int(z.vip)+'</td><td>'+int(z.dai)+'</td><td><b>'+int(z.hvP)+'</b></td><td>'+tr1(z.hvGap)+'</td>'+
+      '<td class="gs">'+int(z.cbo)+'</td><td class="t-bad"><b>'+int(z.cboN)+'</b></td><td>'+int(z.bdN)+'</td><td class="gs">'+int(z.cbn)+'</td><td class="t-bad"><b>'+int(z.cbnN)+'</b></td>'+
+      '<td class="gs">'+int(z.gk)+'</td><td>'+int(z.gkN)+'</td>'};
+  var tt='Mục tiêu ngày '+dayName+' '+dmy(ds)+' – '+sc.who;
+  h+=rpSec('dy1',1,'#dc2626','Mục tiêu ngày theo NPP → SS → ĐDKD','<div class="rp-ban">'+esc(tt)+' <small>(Triệu · số KH theo lịch ghé tuần '+D.wk.toLowerCase()+')</small></div><div class="rp-filt"><button data-rpexp="dy|1">Mở hết ĐDKD</button><button data-rpexp="dy|0">Thu gọn</button><button class="rp-fbtn" data-rpfocus="dy1">'+(ui.rpFocus==='dy1'?'✕ Thoát Focus':'⛶ Focus xem full')+'</button><button class="rp-snapbtn" data-snap="dy1" data-snapt="'+esc(tt)+'">📷 Chụp ảnh bảng</button></div>'+
+    '<div class="rp-tw"><table class="rp-t"><tr><th rowspan="2">NPP / SS / ĐDKD</th><th colspan="2" class="g gs" style="background:#dc2626">Doanh số ngày</th><th colspan="2" class="g gs" style="background:#1d4ed8">KH viếng thăm</th><th colspan="4" class="g gs" style="background:#7c3aed">Hội viên</th><th colspan="5" class="g gs" style="background:#ea580c">Combo</th><th colspan="2" class="g gs" style="background:#0f766e">Gắn kết</th></tr>'+
+    '<tr><th class="gs">Chỉ tiêu ngày</th><th>CT theo KH tuyến</th><th class="gs">Số KH</th><th>Chưa có đơn tháng</th><th class="gs">VIP</th><th>VIP Đại sứ</th><th>Cần đẩy M3</th><th>Thiếu đến M3</th><th class="gs">KH OFF</th><th>OFF chưa nhận</th><th>OFF 700k–&lt;3tr chưa nhận</th><th class="gs">KH ON</th><th>ON chưa nhận</th><th class="gs">KH tham gia</th><th>Chưa đạt hết</th></tr>'+
+    rpRows(cell,{key:'dy',name:function(r){return'<button class="nm" data-dyrep="'+r.pos+'">'+(ui.dyRep===r.pos?'▾ ':'▸ ')+r.short+' · '+esc(r.name)+'</button>'},on:function(r){return ui.dyRep===r.pos},after:function(r){return ui.dyRep===r.pos?'<tr class="cbdet"><td colspan="16">'+dyDetail(r,D,dayName,ds)+'</td></tr>':''}})+'</table></div>'+
+    '<div class="rp-note"><b>Chỉ tiêu ngày</b> = (chỉ tiêu tháng − đã đạt) / '+REMAIN+' ngày công còn lại — số ĐDKD phải bán hôm nay để về đích. <b>CT theo KH tuyến</b> = tổng (CT tháng của từng KH trên tuyến / tần suất ghé F) — tiềm năng của đúng tuyến hôm nay. KH viếng thăm lấy theo lịch MCP: KH có lịch '+D.dw+' mọi tuần + KH '+D.dw+' (tuần '+D.wk.toLowerCase()+'); tuần chẵn/lẻ theo số tuần ISO (tuần 02–07/11 là tuần lẻ, khớp với KH đã mua theo lịch). <b>Cần đẩy M3</b> = hội viên chưa đạt 105% CT nền; <b>Chưa đạt hết</b> = KH chưa đạt mốc ở mọi chương trình Gắn kết tham gia. Bấm tên ĐDKD để xem danh sách KH và chụp ảnh tuyến.</div>');
+  /* mục tiêu tuần còn lại: theo ngày */
+  var rows=ds0.slice(0,12).map(function(d){var Dd=dyData(d),z=dyAgg(sc.L,Dd),t=new Date(d+'T00:00:00');return'<tr class="rp-r'+(d===ds?' plnow':'')+'"><td><b>'+DOW[t.getDay()]+' '+dmy(d).slice(0,5)+'</b> <small class="t-mu">tuần '+Dd.wk.toLowerCase()+'</small></td><td class="gs">'+tr1(z.need)+'</td><td>'+tr1(z.ctv)+'</td><td class="gs">'+int(z.n)+'</td><td>'+int(z.nob)+'</td><td class="gs">'+int(z.vip)+'</td><td>'+int(z.dai)+'</td><td class="gs">'+int(z.cbo)+'</td><td>'+int(z.cbn)+'</td><td class="gs">'+int(z.gk)+'</td></tr>'});
+  DYC=null;dyData(ds);
+  h+=rpSec('dy2',2,'#1e6fe6','Lịch mục tiêu các ngày tới','<div class="rp-ban">Mục tiêu các ngày công tới · '+esc(sc.who)+'</div><div class="rp-tw"><table class="rp-t"><tr><th>Ngày</th><th class="gs">Chỉ tiêu ngày (Tr)</th><th>CT theo KH tuyến</th><th class="gs">KH viếng thăm</th><th>Chưa có đơn</th><th class="gs">HV VIP</th><th>VIP Đại sứ</th><th class="gs">Combo OFF</th><th>Combo ON</th><th class="gs">KH Gắn kết</th></tr>'+rows.join('')+'</table></div><div class="rp-note">Chỉ tiêu ngày giữ nguyên cho các ngày tới (tính theo số liệu hiện tại) và sẽ tự tính lại sau mỗi lần cập nhật data. Ngày nào bán thiếu, chỉ tiêu các ngày sau tăng lên.</div>');
+  return h+'</div>'}
+function dyDetail(r,D,dayName,ds){var A=D.by[r.pos],P=c360Maps();var L=A.L.slice().sort(function(a,b){var ha=P.hv[a.code]?1:0,hb=P.hv[b.code]?1:0;return hb-ha||(b.ct||0)-(a.ct||0)});
+  var row=function(x,i){var f=+x.f||4,tags=c360Tags(x,true);return'<tr class="rp-r"><td>'+(i+1)+'</td><td style="text-align:left"><b>'+esc(x.name)+'</b> <small class="t-mu">'+x.code+' · '+x.ch+(x.sch?' · '+esc(visD(x.sch)):'')+'</small></td><td><b>'+tr1v((x.ct||0)/f)+'</b></td><td>'+(x.ms?tr1v(x.ms):'<span class="t-bad">Chưa mua</span>')+'</td><td style="text-align:left">'+(tags.length?tags.map(tagHTML).join(''):'<span class="t-mu">—</span>')+'</td></tr>'};
+  return'<div class="cbd" id="dyd"><div class="rp-filt"><b>'+esc(r.short+' · '+r.name)+' · '+dayName+' '+dmy(ds)+'</b><span class="who">'+A.n+' KH · chỉ tiêu ngày '+tr1(A.need)+' Tr · CT theo KH tuyến '+tr1(A.ctv)+' Tr</span><button class="rp-snapbtn" data-dyshot="'+r.pos+'">📷 Ảnh tuyến gửi Zalo</button><button class="rp-snapbtn" data-snapd="dyd" data-snapt="Mục tiêu ngày '+esc(r.short+' '+r.name)+' '+dmy(ds)+'">📷 Chụp bảng</button></div>'+
+    '<div class="dykpi"><span>HV VIP <b>'+A.vip+'</b></span><span>VIP Đại sứ <b>'+A.dai+'</b></span><span>Cần đẩy M3 <b>'+A.hvP+'</b></span><span>Combo OFF <b>'+A.cbo+'</b> (chưa nhận '+A.cboN+')</span><span>Combo ON <b>'+A.cbn+'</b> (chưa nhận '+A.cbnN+')</span><span>Gắn kết <b>'+A.gk+'</b></span></div>'+
+    '<div class="rp-tw"><table class="rp-t dytb"><tr><th>#</th><th>Khách hàng</th><th>CT lần ghé</th><th>DS tháng</th><th>Chương trình áp dụng</th></tr>'+(L.length?L.map(row).join(''):'<tr><td colspan="5" class="t-mu">Không có KH trên tuyến ngày này</td></tr>')+'</table></div>'+
+    '<div class="rp-note">Sắp hội viên lên trước, rồi theo CT tháng. <b>CT lần ghé</b> = CT tháng của KH / tần suất ghé F.</div></div>'}
+document.addEventListener('click',function(e){var t=e.target.closest('[data-dyd],[data-dyrep],[data-dyshot]');if(!t)return;
+  if(t.dataset.dyshot){var ds0=dyDates(),ds=ui.dyDate&&ds0.indexOf(ui.dyDate)>=0?ui.dyDate:ds0[0],D=dyData(ds),A=D.by[t.dataset.dyshot];var L=A.L.slice().sort(function(a,b){var P=c360Maps();return(P.hv[b.code]?1:0)-(P.hv[a.code]?1:0)||(b.ct||0)-(a.ct||0)});openShot(L,{ss:'all',rep:t.dataset.dyshot,day:D.dw,wk:D.wk,st:'all',ch:'all'});return}
+  if(t.dataset.dyd)ui.dyDate=t.dataset.dyd;else ui.dyRep=ui.dyRep===t.dataset.dyrep?null:t.dataset.dyrep;render()});
+
 /*RP-END*/
 function render(){renderHead();setThemeBtn();var v=document.getElementById('view');
   document.body.classList.toggle('noscroll',(!!ui.ksFocus&&ui.tab==='overview')||(!!ui.focus&&(ui.tab==='kpi'||ui.tab==='bonus'))||(!!ui.dFocus&&ui.tab==='daily'));document.body.classList.toggle('wide',ui.tab==='kpi'||ui.tab==='daily');
   var PH={overview:['Dashboard','Tổng quan doanh số, khách hàng và ngành hàng của NPP và 2 SS'],kpi:['KPIs & Thưởng','1. KPIs lương: 8 KPI theo công văn 21 · PC_BT điều chỉnh theo công văn 25 · NPP → SS → ĐDKD'],bonus:['KPIs & Thưởng','2. Thưởng chương trình: Kokomi 90 · Nước mắm cao cấp · Xốt Chinsu · Thịt chế biến — số tạm tính'],on:['KH ON','Quầy kênh ON theo NPP → SS → ĐDKD · mục tiêu mở 30 ASO ở 7 loại hình trọng tâm · số liệu đến '+dmy(M.to)],daily:['Đơn hàng','Doanh số và số đơn theo ngày, cơ cấu ngành hàng và nhóm khách'],settings:['Cài đặt','Giao diện, cách tính và cập nhật dữ liệu']}[ui.tab];
-  var RPT={db:vDB,tq:vTQ,fun:vFUN,th:vTH,hv:vHV,cb:vCB,gk:vGK,plan:vPLAN};document.body.classList.toggle('rpmode',!!RPT[ui.tab]);if(RPT[ui.tab])PH=null;
+  var RPT={db:vDB,tq:vTQ,fun:vFUN,th:vTH,hv:vHV,cb:vCB,gk:vGK,plan:vPLAN,day:vDAY};document.body.classList.toggle('rpmode',!!RPT[ui.tab]);if(RPT[ui.tab])PH=null;
   var body=RPT[ui.tab]?RPT[ui.tab]():ui.tab==='bonus'?vBonus():ui.tab==='daily'?vDaily():ui.tab==='kpi'?vKpi():ui.tab==='rep'?vRep():ui.tab==='cust'?vCust():ui.tab==='on'?vOn():ui.tab==='settings'?vSettings():vOverview();
   var sub2=(ui.tab==='kpi'||ui.tab==='bonus')?'<div class="seg kbseg" role="tablist" aria-label="KPIs và Thưởng"><button role="tab" data-tab="kpi" aria-pressed="'+(ui.tab==='kpi')+'">'+ico('target','sm')+'1. KPIs</button><button role="tab" data-tab="bonus" aria-pressed="'+(ui.tab==='bonus')+'">'+ico('gift','sm')+'2. Thưởng</button></div>':'';
   v.innerHTML=(PH?'<div class="pagehead"><div><h1 class="ph-t">'+PH[0]+'</h1><p class="ph-s">'+PH[1]+'</p></div></div>':'')+sub2+'<div class="vbody'+(ANIM?' anim':'')+'">'+body+'</div>';
