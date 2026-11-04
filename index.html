@@ -985,6 +985,9 @@ tr.cbdet>td{background:#f4f8ff!important;padding:10px 12px 14px 22px!important;p
 .mibar u{position:absolute;top:-3px;bottom:-3px;width:3px;background:#dc2626;border-radius:2px}
 .mileg{font-size:.82rem;color:#334155;margin-bottom:8px}
 .rp-t.mitb th small{display:block;font-weight:500;opacity:.8}
+.rp-sec.cbmx:not(.rp-focus){margin:12px 0 0;padding:0;background:none;border:0;box-shadow:none}
+.rp-sec.cbmx:not(.rp-focus) .rp-sin{padding:0;background:none;border:0;box-shadow:none}
+.rp-sec.cbmx:not(.rp-focus) .cbmxh{display:none}
 
 /*RP-CSS-END*/
 </style>
@@ -2814,7 +2817,7 @@ function cbDaily(sc){var mt=ui.cbMt||'all',DAYS=M.workdays,past=DAYS.filter(func
   return'<div class="rp-ban">Số suất combo phát ra theo ngày · '+esc(sc.who)+' <small>(chai quà tặng trên đơn)</small></div>'+chips+
     '<div class="rp-g4 cbsum"><div class="rp-card"><b>'+int(sum)+'</b><span>suất từ đầu tháng</span></div><div class="rp-card"><b>'+dec(avg,1)+'</b><span>suất / ngày công</span></div><div class="rp-card"><b>'+int(T2.reduce(function(s,t){return s+t.to},0))+'</b><span>chai tương ớt</span></div><div class="rp-card"><b>'+int(T2.reduce(function(s,t){return s+t.wk},0))+'</b><span>chai Wake up</span></div></div>'+
     '<div class="rp-card cbcw"><div class="pllg"><span><b style="background:#ea580c"></b>Tương ớt 250gr</span><span><b style="background:#7c3aed"></b>Wake up 247</span><span class="t-mu">Cột xám = ngày chưa tới</span></div><div class="cbsc">'+svg+'</div></div>'+
-    '<div class="rp-tw"><table class="rp-t cbhm"><tr><th>ĐDKD</th>'+past.map(function(d){var dt=new Date(d+'T00:00:00');return'<th>'+dt.getDate()+'<small>'+['CN','T2','T3','T4','T5','T6','T7'][dt.getDay()]+'</small></th>'}).join('')+'<th class="gs">Tổng</th><th>TB/ngày</th><th>Ngày có combo</th></tr>'+rowsH+foot+'</table></div>'+
+    '<section class="rp-sec cbmx" id="cb2m"><div class="rp-sin"><div class="rp-ban cbmxh">Combo theo ngày của từng ĐDKD · '+esc(sc.who)+'</div><div class="rp-filt"><b>Bảng ĐDKD × ngày</b><button class="rp-fbtn" data-rpfocus="cb2m">'+(ui.rpFocus==='cb2m'?'✕ Thoát Focus':'⛶ Focus xem full bảng')+'</button><button class="rp-snapbtn" data-snap="cb2m" data-snapt="Combo theo ngày của từng ĐDKD – '+esc(sc.who)+'">📷 Chụp ảnh bảng</button><span class="who">'+reps.length+' ĐDKD · '+past.length+' ngày</span></div><div class="rp-tw"><table class="rp-t cbhm"><tr><th>ĐDKD</th>'+past.map(function(d){var dt=new Date(d+'T00:00:00');return'<th>'+dt.getDate()+'<small>'+['CN','T2','T3','T4','T5','T6','T7'][dt.getDay()]+'</small></th>'}).join('')+'<th class="gs">Tổng</th><th>TB/ngày</th><th>Ngày có combo</th></tr>'+rowsH+foot+'</table></div></div></section>'+
     '<div class="rp-note">Mỗi ô = số suất combo ĐDKD phát ra trong ngày (đếm chai quà tặng trên đơn: Tương ớt Chinsu 250gr cho combo KH lẻ OFF / Nhà hàng, Wake up 247 cho combo ON). Ô càng đậm càng nhiều suất; "·" = ngày đó chưa có combo. Bảng hiện các ngày đã có số liệu, biểu đồ hiện cả tháng.</div>'}
 document.addEventListener('click',function(e){var t=e.target.closest('[data-cbmt]');if(!t)return;ui.cbMt=t.dataset.cbmt;render()});
 
