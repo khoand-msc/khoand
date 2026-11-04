@@ -1484,7 +1484,7 @@ function renderHead(){
   if(mk.length>1)document.getElementById('month').innerHTML='<span class="mswitch">'+mk.map(function(k){var on=(VIEW||curK)===k;return'<button data-viewm="'+(k===curK?'':k)+'" aria-pressed="'+on+'">T'+(+k.slice(5))+(k===curK?'':' · xem lại')+'</button>'}).join('')+'</span>'+document.getElementById('month').innerHTML;
   if(ui.tab==='rules'||ui.tab==='update')ui.tab='settings';
   var MAPT={overview:'db',kpi:'tq',bonus:'th',daily:'db'};if(MAPT[ui.tab])ui.tab=MAPT[ui.tab];
-  var NAV=[{g:'Báo cáo',items:[['db','Dashboard','pie-chart'],['day','Mục tiêu ngày','calendar-check'],['tq','Tổng quan','bar-chart-3'],['fun','Fundamental','target'],['th','Thưởng','gift'],['hv','Hội viên','crown'],['cb','Combo','package'],['gk','Gắn kết & Tập trung','handshake'],['plan','Kế hoạch','clipboard-list']]},{g:'Khách hàng',items:[['cust','Khách hàng','users-round']]},{g:'Hệ thống',items:[['settings','Cài đặt','settings']]}];
+  var NAV=[{g:'Báo cáo',items:[['db','Dashboard','pie-chart'],['tq','Tổng quan','bar-chart-3'],['fun','Fundamental','target'],['th','Thưởng','gift'],['hv','Hội viên','crown'],['cb','Combo','package'],['gk','Gắn kết & Tập trung','handshake'],['plan','Kế hoạch','clipboard-list'],['day','Mục tiêu ngày','calendar-check']]},{g:'Khách hàng',items:[['cust','Khách hàng','users-round']]},{g:'Hệ thống',items:[['settings','Cài đặt','settings']]}];
   var ok={};NAV.forEach(function(g){g.items.forEach(function(i){ok[i[0]]=1})});if(ui.tab!=='rep'&&!ok[ui.tab])ui.tab='db';
   var cur=ui.tab==='rep'?'tq':ui.tab,lbl='';NAV.forEach(function(g){g.items.forEach(function(i){if(i[0]===cur)lbl=i[1]})});
   var TT=agg(M.reps).turnover,dd=TT.p-TIME;
