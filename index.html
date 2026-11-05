@@ -2998,7 +2998,7 @@ function pgBlock(K,G,sc){var C=PGK[K],inL={};sc.L.forEach(function(r){inL[r.pos]
   var h='<div class="pg-div '+K+'" id="pg'+K+'"><b>'+(isG?'A':'B')+'</b><div><h3>'+C.t+'</h3><small>'+C.s+' · '+PL.length+' chương trình</small></div></div>';
   h+='<div class="rp-g4">'+kc('blue','handshake',isG?'KH tham gia gắn kết':'Lượt KH tham gia',int(Z.n),int(Z.nu)+' KH · '+esc(lbl))+
     kc(cls,'target',isG?'DS tích lũy / mốc tăng trưởng':'DS tích lũy / mốc tối thiểu',dec(Z.pc*100,1)+'%',tr1(Z.s)+' / '+tr1(Z.thr)+' Tr'+(isG?' · DS nền '+tr1(Z.base)+' Tr':'')+' · tiến độ '+dec(TIME*100,1)+'%',kbar(Z.pc,cls,TIME))+
-    kc(Z.ok?'good':'bad','award','Lượt KH đã đạt mốc',int(Z.ok),'Đã mua '+int(Z.buy)+' · gần đạt (≥70%) '+int(Z.near))+
+    kc(Z.ok?'good':'bad','award','Lượt KH đã đạt mốc',int(Z.ok)+' <span style="font-size:.55em;font-weight:700;opacity:.85">· '+(Z.n?dec(Z.ok/Z.n*100,1):'0')+'% chỉ tiêu</span>','Chỉ tiêu '+int(Z.n)+' lượt KH · đã mua '+int(Z.buy)+' · gần đạt (≥70%) '+int(Z.near))+
     kc('pu','gift','Thưởng dự kiến cho KH',vnk(Z.rw),'Tính trên DS đã đạt mốc · 100 điểm = 1 đ')+'</div>';
   var card=function(p){var z=gkAgg(mine.filter(function(x){return x.p===p}));
     return'<button class="rp-cbc gkc" data-pgp="'+K+'|'+p.key+'" aria-pressed="'+(pk===p.key)+'"><div class="rp-cbt" style="background:linear-gradient(135deg,'+p.col+',#0f172a)"><b>'+esc(p.short)+'</b><span>'+(p.wide?'Toàn bộ KH trong MCP':int(p.n)+' KH trong danh sách')+'</span></div><div class="rp-cbb"><div class="cond">'+gkCond(p)+'</div><div class="gift">'+gkGift(p)+'</div>'+
