@@ -1015,14 +1015,20 @@ tr.cbdet>td{background:#f4f8ff!important;padding:10px 12px 14px 22px!important;p
 .tbc b{color:var(--c)}.tbc span{font-size:.8rem;color:#334155}.tbc small{font-size:.72rem;color:#64748b}
 .tbbar{display:block;height:6px;background:#e2e8f0;border-radius:999px;overflow:hidden}.tbbar i{display:block;height:100%;background:var(--c)}
 .tbchip{display:inline-block;border:1px solid #cbd5e1;border-radius:10px;padding:2px 8px;font-size:.76rem;margin:2px 0;background:#fff}
-.pgchs{display:flex;flex-wrap:wrap;gap:6px}
-.pgch{border:1px solid #e2e8f0;border-left:4px solid var(--c);border-radius:10px;padding:4px 9px;background:#fff;display:flex;flex-direction:column;min-width:210px;font-size:.78rem;line-height:1.35}
-.pgch>b{color:var(--c);font-size:.8rem}.pgch small{font-size:.72rem}
-.pgch.pg-good{background:#f0fdf4}.pgch.pg-good small{color:#15803d;font-weight:700}
-.pgch.pg-warn{background:#fffbeb}.pgch.pg-warn .pgp{color:#b45309}
-.pgch.pg-run .pgp{color:#c2410c}.pgch.pg-none{background:#fef2f2}.pgch.pg-none .pgp{color:#dc2626}
-.pgch small{color:#64748b}
-@media (max-width:640px){.pgkt,.pgkt tbody,.pgkt tr,.pgkt td{display:block;width:auto!important;min-width:0!important}.pgkt .pgkh{display:none}.pgkt tr.rp-r{border-bottom:2px solid #cbd5e1;padding:6px 0}.pgkt td{border:none!important;padding:3px 6px!important;text-align:left!important}.pgkt td:nth-child(3),.pgkt td:nth-child(4){display:inline-block}.pgch{min-width:0;flex:1 1 100%}}
+.pgkt td{padding:4px 6px!important;vertical-align:middle}
+.pgcu{text-align:left!important;min-width:150px;max-width:190px;line-height:1.3}.pgcu b{font-size:.8rem}.pgcu small{display:block;font-size:.68rem;color:#64748b}
+.pglc{text-align:left!important;padding:3px 4px!important}
+.pgln{display:grid;grid-template-columns:minmax(150px,1.5fr) minmax(120px,1fr) 110px 78px;align-items:center;gap:8px;border-left:3px solid var(--c);background:#fff;border-radius:4px;padding:2px 8px;margin:2px 0;font-size:.72rem;line-height:1.3;white-space:nowrap}
+.pgln .n{font-weight:700;color:var(--c);overflow:hidden;text-overflow:ellipsis}.pgln .n i{font-weight:400;font-style:normal;color:#64748b;font-size:.66rem}
+.pgln .v{color:#334155}
+.pgln .p{position:relative;background:#e2e8f0;border-radius:6px;height:15px;overflow:hidden}.pgln .p em{position:absolute;left:0;top:0;bottom:0;background:#fca5a5}.pgln .p b{position:relative;display:block;text-align:center;font-size:.68rem;line-height:15px;color:#0f172a}
+.pgln .t{font-size:.68rem;color:#64748b;text-align:right}
+.pgln.pg-good{background:#f0fdf4}.pgln.pg-good .p em{background:#86efac}.pgln.pg-good .t{color:#15803d;font-weight:700}
+.pgln.pg-warn{background:#fffbeb}.pgln.pg-warn .p em{background:#fcd34d}
+.pgln.pg-run .p em{background:#fdba74}.pgln.pg-none{background:#fef2f2}
+@media (max-width:640px){.pgkt{width:100%!important}.pgkt,.pgkt tbody,.pgkt tr,.pgkt td{display:block;width:auto!important;min-width:0!important;max-width:none!important}.pgkt .pgkh{display:none}.pgkt tr.rp-r{border-bottom:2px solid #cbd5e1;padding:4px 0}.pgkt td{border:none!important}.pgcu small{display:inline;margin-left:6px}
+.pgln{grid-template-columns:minmax(0,1fr) 62px 60px;grid-template-areas:"n p t" "v p t";gap:0 6px;padding:2px 6px}.pgln .n{grid-area:n}.pgln .v{grid-area:v;font-size:.66rem}.pgln .p{grid-area:p}.pgln .t{grid-area:t}}
+@media (max-width:640px){.cbd.pgdet{position:sticky;left:0;width:calc(100vw - 44px);max-width:calc(100vw - 44px);box-sizing:border-box}.cbd.pgdet .rp-tw{overflow-x:hidden}}
 
 /*RP-CSS-END*/
 </style>
@@ -3022,10 +3028,10 @@ function pgDetail(K,r,all,pk,PL){var isG=K==='gk',rows=all.filter(function(x){re
   var lst=rows.filter(function(x){return fF(x)&&(dk==='all'||x.dd.indexOf(dk)>=0)}).sort(function(a,b){return f==='ok'?b.rw-a.rw:f==='none'?b.thr-a.thr:b.pc-a.pc||a.need-b.need});
   var SP=PL.filter(function(p){return p.key===pk})[0],tit=PGK[K].lb+' '+r.short+' · '+r.name+(SP?' · '+SP.short:'')+(dk!=='all'?' · '+dk:'')+' · '+FL.filter(function(o){return o[0]===f})[0][1];
   var KG={},KO=[];lst.forEach(function(x){var g=KG[x.code];if(!g){g=KG[x.code]={x:x,L:[]};KO.push(g)}g.L.push(x)});
-  var chip=function(x){var p=x.p,cls=x.ok?'good':x.near?'warn':x.bought?'run':'none';return'<div class="pgch pg-'+cls+'" style="--c:'+p.col+'"><b>'+esc(p.short)+'</b><span>'+(isG?'Nền '+tr1v(x.base)+' · ':'')+'CT '+tr1v(x.thr)+' / TH '+(x.s?tr1v(x.s):'0')+' / <b class="pgp">'+(x.thr?dec(x.pc*100,1)+'%':'—')+'</b></span><small>'+(x.ok?'✓ Đạt'+(x.rw?' · thưởng KH '+vnk(x.rw):''):'Còn thiếu '+tr1v(x.need))+'</small></div>'};
-  var tb='<div class="rp-tw"><table class="rp-t dytb pgkt"><tr class="pgkh"><th>Khách hàng</th><th>Chương trình: CT / TH / % mốc</th><th>Số CT</th><th>Thưởng KH</th></tr>'+
-    (KO.length?KO.slice(0,lim).map(function(g){var x=g.x,rw=g.L.reduce(function(s,q){return s+q.rw},0),okn=g.L.filter(function(q){return q.ok}).length;return'<tr class="rp-r"><td style="text-align:left;min-width:200px"><b>'+esc(x.name)+'</b> <small class="t-mu">'+x.code+(x.o&&x.o[6]?' · '+esc(visD(x.o[6])):'')+'</small></td><td style="text-align:left"><div class="pgchs">'+g.L.map(chip).join('')+'</div></td><td>'+okn+'/'+g.L.length+' đạt</td><td>'+(rw?plc('good',vnk(rw),true):'—')+'</td></tr>'}).join(''):'<tr><td colspan="4" class="t-mu">Không có khách hàng khớp bộ lọc</td></tr>')+'</table></div>';
-  return'<div class="cbd" id="'+did+'"><div class="rp-filt"><b>'+esc(r.short+' · '+r.name)+'</b> <span class="who">'+rows.length+' lượt KH</span>'+FL.map(function(o){return'<button data-pgf="'+K+'|'+o[0]+'" aria-pressed="'+(f===o[0])+'">'+o[1]+'</button>'}).join('')+'<button class="rp-snapbtn" data-snapd="'+did+'" data-snapt="'+esc(tit)+'">📷 Chụp ảnh danh sách</button></div>'+strip+tb+
+  var chip=function(x){var p=x.p,cls=x.ok?'good':x.near?'warn':x.bought?'run':'none',w=Math.min(100,Math.round((x.pc||0)*100));return'<div class="pgln pg-'+cls+'" style="--c:'+p.col+'"><span class="n">'+esc(p.short)+(isG&&x.base?' <i>nền '+tr1v(x.base)+'</i>':'')+'</span><span class="v">CT '+tr1v(x.thr)+' / TH '+(x.s?tr1v(x.s):'0')+'</span><span class="p"><em style="width:'+w+'%"></em><b>'+(x.thr?dec(x.pc*100,1)+'%':'—')+'</b></span><span class="t">'+(x.ok?'✓'+(x.rw?' '+vnk(x.rw):' Đạt'):'thiếu '+tr1v(x.need))+'</span></div>'};
+  var tb='<div class="rp-tw"><table class="rp-t pgkt"><tr class="pgkh"><th>Khách hàng</th><th style="text-align:left">Chương trình · CT / TH · % mốc · còn thiếu (✓ = đạt, kèm thưởng KH)</th></tr>'+
+    (KO.length?KO.slice(0,lim).map(function(g){var x=g.x,rw=g.L.reduce(function(s,q){return s+q.rw},0),okn=g.L.filter(function(q){return q.ok}).length;return'<tr class="rp-r"><td class="pgcu"><b>'+esc(x.name)+'</b><small>'+x.code+(x.o&&x.o[6]?' · '+esc(visD(x.o[6])):'')+'</small><small><b class="'+(okn?'t-ok':'t-mu')+'">'+okn+'/'+g.L.length+' đạt</b>'+(rw?' · thưởng '+vnk(rw):'')+'</small></td><td class="pglc">'+g.L.map(chip).join('')+'</td></tr>'}).join(''):'<tr><td colspan="2" class="t-mu">Không có khách hàng khớp bộ lọc</td></tr>')+'</table></div>';
+  return'<div class="cbd pgdet" id="'+did+'"><div class="rp-filt"><b>'+esc(r.short+' · '+r.name)+'</b> <span class="who">'+rows.length+' lượt KH</span>'+FL.map(function(o){return'<button data-pgf="'+K+'|'+o[0]+'" aria-pressed="'+(f===o[0])+'">'+o[1]+'</button>'}).join('')+'<button class="rp-snapbtn" data-snapd="'+did+'" data-snapt="'+esc(tit)+'">📷 Chụp ảnh danh sách</button></div>'+strip+tb+
     (KO.length>lim?'<div class="rp-filt"><button data-pgmore="'+K+'|1">Xem thêm 150 KH</button><span class="who">Đang hiện '+int(lim)+' / '+int(KO.length)+' KH</span></div>':'')+
     '<div class="rp-note">'+int(KO.length)+' KH · '+int(lst.length)+' lượt chương trình · mỗi thẻ: CT = mốc doanh số, TH = doanh số tháng, % = TH / mốc (xanh đạt, vàng ≥70%, cam đã mua, đỏ chưa mua) · '+(f==='ok'?'sắp theo thưởng':f==='none'?'sắp theo mốc DS':'sắp KH gần đạt lên trước')+'. Bấm lại tên ĐDKD để đóng.</div></div>'}
 document.addEventListener('click',function(e){var t=e.target.closest('[data-pgrep],[data-pgf],[data-pgd],[data-pgp],[data-pgmore]');if(!t)return;var d=t.dataset,a=(d.pgrep||d.pgf||d.pgd||d.pgp||d.pgmore).split('|'),K=a[0],v=a[1],o=function(n){return ui[n]||(ui[n]={})};
