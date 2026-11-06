@@ -745,7 +745,7 @@ nav.tabs .tab[aria-selected="true"] svg{color:#ffe08a!important}
 /* pills & colors */
 .rp-pl{display:inline-block;border-radius:999px;padding:1px 9px;font-weight:800;font-size:.8em;color:#fff;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.18)}
 .rp-pl.good{background:#1f9d55}.rp-pl.warn{background:#e0a020;color:#3a2700}.rp-pl.bad{background:#e0524d}.rp-pl.pu{background:#7c4dff}.rp-pl.na{background:#cbd5e1;color:#334155}
-.rp-pl.lt.good{background:#dcf3e5;color:#16804a;box-shadow:inset 0 0 0 1px #9bd9b5}.rp-pl.lt.warn{background:#fdf0d4;color:#a76a05;box-shadow:inset 0 0 0 1px #f2cf86}.rp-pl.lt.bad{background:#fde3e3;color:#c62f2f;box-shadow:inset 0 0 0 1px #f2abab}.rp-pl.lt.pu{background:#ebe3ff;color:#5b34d6;box-shadow:inset 0 0 0 1px #c8b5ff}
+.rp-pl.lt.good{background:#dcf3e5;color:#16804a;border:1px solid #9bd9b5;box-shadow:none}.rp-pl.lt.warn{background:#fdf0d4;color:#a76a05;border:1px solid #f2cf86;box-shadow:none}.rp-pl.lt.bad{background:#fde3e3;color:#c62f2f;border:1px solid #f2abab;box-shadow:none}.rp-pl.lt.pu{background:#ebe3ff;color:#5b34d6;border:1px solid #c8b5ff;box-shadow:none}
 .t-good{color:#1b8a4a}.t-warn{color:#c47f0c}.t-bad{color:#d02f2f}.t-pu{color:#6a3fe6}.t-mu{color:var(--rp-mu)}
 /* filter */
 .rp-filt{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -1031,6 +1031,10 @@ tr.cbdet>td{background:#f4f8ff!important;padding:10px 12px 14px 22px!important;p
 @media (max-width:640px){.cbd.pgdet{position:sticky;left:0;width:calc(100vw - 44px);max-width:calc(100vw - 44px);box-sizing:border-box}.cbd.pgdet .rp-tw{overflow-x:hidden}}
 .rp-t th small.thc{display:block;font-weight:500;font-size:.66rem;line-height:1.35;opacity:.92;margin-top:3px;white-space:nowrap;text-transform:none;letter-spacing:0}
 .rp-t th small.thb{display:block;margin-top:3px;font-weight:800;color:#fde68a;font-size:.68rem;white-space:nowrap}
+
+.rp-pl.lt{padding:0 8px;line-height:1.45}
+.rp-snapbox *{box-shadow:none!important;text-shadow:none!important;filter:none!important;backdrop-filter:none!important}
+.rp-snapbox .rp-pl{-webkit-font-smoothing:antialiased;vertical-align:middle}
 
 /*RP-CSS-END*/
 </style>
