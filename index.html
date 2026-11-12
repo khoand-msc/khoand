@@ -2266,7 +2266,7 @@ function vRep(){
   h+='<div class="panel chart"><div class="sec-head"><h2>Doanh số theo ngày</h2><span class="hint">Đường kẻ = bình quân cần đạt '+vnd(tp.t/M.total)+'/ngày</span></div>'+barDailyC(r)+'</div>';
   var cov={aso:{},f1:{},f2:{}};['aso','f1','f2'].forEach(function(k){r.covered[k].forEach(function(c){cov[k][c]=1})});
   var mine=STATE.mcp.outlets.filter(function(o){return o[1]===r.pos});
-  var defs={aso:['Chưa có đơn đạt MOQ',function(o){return!cov.aso[o[0]]}],f1:['Chưa ASO Tea 365',function(o){return!cov.f1[o[0]]}],f2:['Chưa ASO Homey Jeju',function(o){return!cov.f2[o[0]]}]};
+  var defs={aso:['Chưa có đơn đạt MOQ',function(o){return!cov.aso[o[0]]}],f1:[M.rules&&M.rules.cv===26?'Chưa Trận Xanh (Chanté NGX + Tea 365 Tết)':'Chưa ASO Tea 365',function(o){return!cov.f1[o[0]]}],f2:[M.rules&&M.rules.cv===26?'Chưa Trận Vàng (Hạt nêm ngọt thanh)':'Chưa ASO Homey Jeju',function(o){return!cov.f2[o[0]]}]};
   var lst=mine.filter(defs[ui.olist][1]).sort(function(a,b){return b[7]-a[7]});
   h+='<div class="panel"><div class="sec-head"><h2>Khách cần ghé để gỡ KPI</h2><span class="hint">Sắp theo doanh số TB 3 tháng</span></div><div class="kpisel" style="margin:8px 0">'+
     Object.keys(defs).map(function(k){var c=mine.filter(defs[k][1]).length;return'<button class="chip" data-ol="'+k+'" aria-pressed="'+(ui.olist===k)+'">'+defs[k][0]+' ('+c+')</button>'}).join('')+'</div><div class="olist">';
