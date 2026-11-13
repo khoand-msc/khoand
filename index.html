@@ -2251,6 +2251,14 @@ function vRep(){
     '<div class="meta">MCP: '+r.outlets.off+' khách OFF ('+r.outlets.callsOff+' call) · '+r.outlets.on+' khách ON ('+r.outlets.callsOn+' call)</div></div>';
   var tp=r.k.turnover,cls=paceCls(tp.p);
   h+='<div class="summary"><div class="panel stat"><div class="l">Doanh số mục tiêu</div><div class="v">'+vnd(tp.t)+'</div><div class="d">Thực hiện '+vnd(tp.a)+'</div></div><div class="panel stat"><div class="l">% TH · Tiến độ</div><div class="v h-'+cls+'">'+pct(tp.p)+' · '+pct(pace(tp.p))+'</div><div class="d">tiến độ chuẩn '+pct(TIME)+'</div></div><div class="panel stat"><div class="l">Thưởng KPI tạm tính</div><div class="v">'+vnd(r.bonus)+'</div><div class="d">theo số đạt hiện tại · tối đa 14,54 tr</div></div></div>';
+  if(M.rules&&M.rules.cv===26&&typeof th11==='function'){var np=th11Npp(),o=th11(r,np),mlv=o.lvl,mt=o.mt,mP=o.tdP+o.ttP+o.mmP;
+    h+='<div class="panel"><div class="sec-head"><h2>Thưởng chương trình tháng '+M.month+'</h2><span class="hint">Tạm tính · tổng <b>'+vnd0(o.tot)+'</b></span></div>'+(o.vac?'<p class="hint">Tuyến trống – không tính thưởng.</p>':'')+'<div class="bgrid">'+
+    [['Ngành Mì (TB 490) · xét theo NPP','NPP đạt '+pct(np.p)+' · '+vnd(np.a)+' / '+vnd(np.t),o.mi,np.p>=1.1?'NPP đạt mức 2 (≥110%) → 500.000đ':np.p>=1?'NPP đạt 100% → 300.000đ · cần thêm '+vnd(np.t*1.1-np.a)+' lên mức 2':'NPP cần thêm '+vnd(np.t-np.a)+' để đạt 100% (300.000đ/ĐDKD)'],
+     ['Combo xốt mỹ vị Chinsu',int(o.cbx)+' ASO (mốc '+B11.cbx.min+') · 10.000đ/ASO',o.cbxB,o.cbx<B11.cbx.min?'Cần thêm '+(B11.cbx.min-o.cbx)+' ASO, đơn từ 2 hộp':''],
+     ['Homey',int(o.hm)+' CH có DS (mốc '+B11.hm.min+') · 10.000đ/CH',o.hmB,o.hm<B11.hm.min?'Cần thêm '+(B11.hm.min-o.hm)+' CH mua Homey':''],
+     ['Thịt chế biến · 3 nhóm (TB 493)',pct(o.mp)+' CT lương Meat'+(mlv?' · Mức '+mlv:''),o.tdB+o.ttB+o.mmB,mlv===2?'Đạt mức 2':mlv===1?'Đạt mức 1 · cần thêm '+vnd(mt.t*1.05-mt.a)+' lên mức 2':'Cần thêm '+vnd(Math.max(0,mt.t-mt.a))+' để mở thưởng · nếu đạt M1 nhận '+vnd0(mP)]
+    ].map(function(x){return'<div class="bitem"><div class="l">'+x[0]+'</div><div class="v">'+money(x[2])+'</div><div class="d">'+x[1]+'</div>'+(x[3]?'<div class="d h-bad">'+x[3]+'</div>':'')+'</div>'}).join('')+'</div></div>'}
+  else{
   var pg=r.prog,BB=KPI.BONUS;
   h+='<div class="panel"><div class="sec-head"><h2>Thưởng chương trình tháng '+M.month+'</h2><span class="hint">Tạm tính · tổng <b>'+vnd(pg.total)+'</b></span></div>'+(pg.inelig?'<p class="hint">'+esc(pg.inelig)+'</p>':'')+'<div class="bgrid">'+
     [['Kokomi 90 (15–31/10)',pg.kkm.t?pct(pg.kkm.t?pg.kkm.a/pg.kkm.t:0)+' · '+vnd(pg.kkm.a)+' / '+vnd(pg.kkm.t):'Không có chỉ tiêu',pg.kkm.b,pg.kkm.t&&pg.kkm.a<pg.kkm.t?'Cần thêm '+vnd(pg.kkm.t-pg.kkm.a)+' để đạt mức 1':pg.kkm.t&&pg.kkm.a<pg.kkm.t2?'Cần thêm '+vnd(pg.kkm.t2-pg.kkm.a)+' để lên mức 2':''],
@@ -2258,6 +2266,7 @@ function vRep(){
      ['ASO Xốt gia vị Chinsu',int(pg.xot.a)+' ASO (mốc '+BB.xot.minAso+')',pg.xot.b,pg.xot.a<BB.xot.minAso?'Cần thêm '+(BB.xot.minAso-pg.xot.a)+' ASO, đơn từ 2 hộp':''],
      ['Thịt chế biến · điều kiện',pct(pg.meat.p)+' chỉ tiêu Meat',pg.m1.b+pg.m2.b+pg.m3.b,pg.meat.lvl===2?'Đạt mức 2':pg.meat.lvl===1?'Đạt mức 1 · cần thêm '+vnd(pg.meat.t*1.05-pg.meat.a)+' lên mức 2':'Cần thêm '+vnd(pg.meat.t-pg.meat.a)+' để mở thưởng 3 nhóm Thịt']
     ].map(function(x){return'<div class="bitem"><div class="l">'+x[0]+'</div><div class="v">'+money(x[2])+'</div><div class="d">'+x[1]+'</div>'+(x[3]?'<div class="d h-bad">'+x[3]+'</div>':'')+'</div>'}).join('')+'</div></div>';
+  }
   h+='<div class="panel"><div class="sec-head"><h2>8 KPI cá nhân</h2><span class="hint">Còn '+REMAIN+' ngày công</span></div>';
   KDEF.forEach(function(d){var o=r.k[d.k],st=status(d.k,o),note='';
     if(d.ratio){var t1=d.k==='lppc'?P.lppc1:P.meat;note=o.lines+' mã / '+o.pc+' đơn · '+(o.a>=o.t?'đã đạt mức cao nhất':'cần thêm '+dec(Math.max(0,(o.a<t1?t1:o.t)-o.a))+' mã/đơn để lên '+(o.a<t1?'mức 1':'mức 2'))}
