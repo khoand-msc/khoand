@@ -2274,10 +2274,15 @@ function vRep(){
   var cov={aso:{},f1:{},f2:{}};['aso','f1','f2'].forEach(function(k){r.covered[k].forEach(function(c){cov[k][c]=1})});
   var mine=STATE.mcp.outlets.filter(function(o){return o[1]===r.pos});
   var defs={aso:['Chưa có đơn đạt MOQ',function(o){return!cov.aso[o[0]]}],f1:[M.rules&&M.rules.cv===26?'Chưa Trận Xanh (Chanté NGX + Tea 365 Tết)':'Chưa ASO Tea 365',function(o){return!cov.f1[o[0]]}],f2:[M.rules&&M.rules.cv===26?'Chưa Trận Vàng (Hạt nêm ngọt thanh)':'Chưa ASO Homey Jeju',function(o){return!cov.f2[o[0]]}]};
-  var lst=mine.filter(defs[ui.olist][1]).sort(function(a,b){return b[7]-a[7]});
+  var INM=STATE.sales.itemNames||{},BG=[['xot','Xốt mỹ vị',/mỹ vị/i],['hm','Homey',/homey/i],['tea','Tea 365',/tea ?365/i]],BUY={};BG.forEach(function(g){BUY[g[0]]={}});
+  (r.ol||[]).forEach(function(q){(q[5]||[]).forEach(function(l){var nm=INM[l[0]]||'';BG.forEach(function(g){if(g[2].test(nm))BUY[g[0]][q[0]]=(BUY[g[0]][q[0]]||0)+l[2]})})});
+  var olb=ui.olb||'no';BG.forEach(function(g){defs[g[0]]=[g[1],function(o){return olb==='yes'?!!BUY[g[0]][o[0]]:!BUY[g[0]][o[0]]},1]});
+  if(!defs[ui.olist])ui.olist='aso';
+  var lst=mine.filter(defs[ui.olist][1]).sort(function(a,b){var B=BUY[ui.olist];return B&&olb==='yes'?(B[b[0]]||0)-(B[a[0]]||0):b[7]-a[7]});
   h+='<div class="panel"><div class="sec-head"><h2>Khách cần ghé để gỡ KPI</h2><span class="hint">Sắp theo doanh số TB 3 tháng</span></div><div class="kpisel" style="margin:8px 0">'+
-    Object.keys(defs).map(function(k){var c=mine.filter(defs[k][1]).length;return'<button class="chip" data-ol="'+k+'" aria-pressed="'+(ui.olist===k)+'">'+defs[k][0]+' ('+c+')</button>'}).join('')+'</div><div class="olist">';
-  lst.slice(0,ui.oLimit).forEach(function(o){h+='<div class="orow"><div><b>'+esc(o[2])+'</b><br><span>'+o[0]+' · '+esc(o[3])+' · '+o[4]+(o[8]?' · '+esc(o[8]):'')+'</span></div><div class="rt"><b>'+vnd(o[7]*1000/3)+'</b><br><span>'+esc(o[6]?visD(o[6]):'—')+'</span></div></div>'});
+    Object.keys(defs).map(function(k){if(defs[k][2]){var nb=mine.filter(function(o){return!!BUY[k][o[0]]}).length;return'<button class="chip" data-ol="'+k+'" aria-pressed="'+(ui.olist===k)+'">'+defs[k][0]+' ('+nb+'/'+mine.length+' đã mua)</button>'}var c=mine.filter(defs[k][1]).length;return'<button class="chip" data-ol="'+k+'" aria-pressed="'+(ui.olist===k)+'">'+defs[k][0]+' ('+c+')</button>'}).join('')+'</div>'+
+    (defs[ui.olist][2]?'<div class="kpisel" style="margin:0 0 8px">'+[['no','Chưa mua'],['yes','Đã mua']].map(function(b){var n=mine.filter(function(o){var x=!!BUY[ui.olist][o[0]];return b[0]==='yes'?x:!x}).length;return'<button class="chip" data-olb="'+b[0]+'" aria-pressed="'+(olb===b[0])+'">'+b[1]+' '+defs[ui.olist][0]+' ('+n+')</button>'}).join('')+'</div>':'')+'<div class="olist">';
+  lst.slice(0,ui.oLimit).forEach(function(o){h+='<div class="orow"><div><b>'+esc(o[2])+'</b><br><span>'+o[0]+' · '+esc(o[3])+' · '+o[4]+(o[8]?' · '+esc(o[8]):'')+'</span></div><div class="rt"><b>'+(defs[ui.olist][2]&&olb==='yes'?'Đã mua '+vnd0(BUY[ui.olist][o[0]]):vnd(o[7]*1000/3))+'</b><br><span>'+esc(o[6]?visD(o[6]):'—')+'</span></div></div>'});
   if(!lst.length)h+='<p class="hint">Đã phủ hết khách trong MCP.</p>';
   h+='</div>'+(lst.length>ui.oLimit?'<button class="more" id="more">Xem thêm ('+(lst.length-ui.oLimit)+')</button>':'')+'</div>';
   return h}
@@ -3772,7 +3777,7 @@ function curTheme(){var t=document.documentElement.getAttribute('data-theme');if
 function setThemeBtn(){var b=document.getElementById('themebtn');if(!b)return;var d=curTheme()==='dark';b.innerHTML=ico(d?'sun':'moon')+'<span>'+(d?'Sáng':'Tối')+'</span>';b.setAttribute('aria-pressed',d)}
 (function(){try{var t=localStorage.getItem('kpi-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}})();
 function top(){try{window.scrollTo(0,0)}catch(e){}}
-document.addEventListener('click',function(e){var t=e.target.closest('[data-cfpgs],[data-cfrb],#ksfocus,[data-ovrep],[data-onss],[data-onssx],[data-onrep],#ghsave,#ghoff,#pubdl,[data-tex],[data-cfopen],#shotclose,#shotshare,#shotcopy,#shotsave,#cfshot,[data-cfday],[data-cfwk],[data-settheme],[data-cfss],[data-cfch],[data-cfst],[data-cfsort],#cfmore,#themebtn,[data-bss],[data-bs],#dfocus,[data-cat],[data-catlvl],[data-ks],[data-cs],#focusbtn,[data-tab],[data-ov],[data-dss],[data-kss],[data-rep],[data-ol],#more,#pub');if(!t)return;
+document.addEventListener('click',function(e){var t=e.target.closest('[data-cfpgs],[data-cfrb],#ksfocus,[data-ovrep],[data-onss],[data-onssx],[data-onrep],#ghsave,#ghoff,#pubdl,[data-tex],[data-cfopen],#shotclose,#shotshare,#shotcopy,#shotsave,#cfshot,[data-cfday],[data-cfwk],[data-settheme],[data-cfss],[data-cfch],[data-cfst],[data-cfsort],#cfmore,#themebtn,[data-bss],[data-bs],#dfocus,[data-cat],[data-catlvl],[data-ks],[data-cs],#focusbtn,[data-tab],[data-ov],[data-dss],[data-kss],[data-rep],[data-ol],[data-olb],#more,#pub');if(!t)return;
   if(t.dataset.settheme){document.documentElement.setAttribute('data-theme',t.dataset.settheme);try{localStorage.setItem('kpi-theme',t.dataset.settheme)}catch(e){}return render()}
   var cf=ui.cf||(ui.cf={ss:'all',rep:'',ch:'all',st:'all',q:'',lim:100,sort:'s3',day:'all',wk:'all'});
   if(t.dataset.onss!=null){ui.onSS=t.dataset.onss;return render()}
@@ -3815,6 +3820,7 @@ document.addEventListener('click',function(e){var t=e.target.closest('[data-cfpg
   else if(t.dataset.kss!=null){ui.kSS=t.dataset.kss||null;ui.tab='kpi';top()}
   else if(t.dataset.rep){ui.focus=false;ui.rep=t.dataset.rep;ui.tab='rep';ui.oLimit=25;top()}
   else if(t.dataset.ol){ui.olist=t.dataset.ol;ui.oLimit=25}
+  else if(t.dataset.olb){ui.olb=t.dataset.olb;ui.oLimit=25}
   render()});
 document.addEventListener('keydown',function(e){var c=e.target.closest&&e.target.closest('.cat.drill');if(c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();c.click();return}var sm=document.getElementById('shotmodal');if(e.key==='Escape'&&sm&&!sm.hidden){sm.hidden=true;return}if(e.key==='Escape'&&(ui.focus||ui.dFocus||ui.ksFocus)){ui.focus=false;ui.dFocus=false;ui.ksFocus=false;render()}});
 try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){render()})}catch(e){}
