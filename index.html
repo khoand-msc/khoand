@@ -3427,7 +3427,7 @@ function vDAY(){var ds0=dyDates(),ds=ui.dyDate&&(ds0.indexOf(ui.dyDate)>=0||dyPa
   var dayName={T2:'Thứ 2',T3:'Thứ 3',T4:'Thứ 4',T5:'Thứ 5',T6:'Thứ 6',T7:'Thứ 7'}[D.dw]||D.dw;
   var h='<div class="rp">'+rpTop('Mục tiêu ngày '+dayName+' '+dmy(ds)+' – '+esc(sc.who),'Tuần '+D.wk.toLowerCase()+' · tính từ số liệu đến '+dmy(M.to)+' · còn '+REMAIN+' ngày công · khách hàng theo lịch ghé MCP')+rpFilt();
   h+='<div class="rp-filt dychips"><span class="lb">Đã đi (tracking):</span>'+dyPast().map(function(d){var t=new Date(d+'T00:00:00'),z=dyAgg(sc.L,dyData(d)),p=z.tg?z.th/z.tg:0;return'<button class="dypast" data-dyd="'+d+'" aria-pressed="'+(d===ds)+'"><b>'+DOW[t.getDay()]+'</b> '+dmy(d).slice(0,5)+'<small class="'+(p>=1?'t-good':'t-bad')+'">'+dec(p*100,0)+'%</small></button>'}).join('')+'</div><div class="rp-filt dychips"><span class="lb">Ngày đi tuyến:</span>'+ds0.slice(0,12).map(function(d){var t=new Date(d+'T00:00:00');return'<button data-dyd="'+d+'" aria-pressed="'+(d===ds)+'"><b>'+DOW[t.getDay()]+'</b> '+dmy(d).slice(0,5)+'<small>'+dyParity(d).toLowerCase()+'</small></button>'}).join('')+'</div>';
-  ui.bcDs=ds;h+=bcSec(sc,ds,dayName);
+  ui.bcDs=ds;h+=bcSum(sc,ds,dayName)+bcSec(sc,ds,dayName);
   if(D.past)h+=dyTrack(sc,D,dayName,ds);
   if(!D.past)h+='<div class="rp-g4">'+kc('bad','target','Chỉ tiêu doanh số ngày',tr1(Z.need)+' Tr','Còn thiếu '+tr1(Z.left)+' Tr / '+REMAIN+' ngày công · CT theo KH trên tuyến hôm nay '+tr1(Z.ctv)+' Tr')+
     kc('blue','map-pin','Khách hàng viếng thăm',int(Z.n)+' KH','Chưa có đơn tháng này: '+int(Z.nob)+' KH · DS tháng của tuyến '+tr1(Z.mtd)+' Tr')+
@@ -3549,12 +3549,13 @@ function bcRep(r,ds){if(BCM.M!==M)BCM={M:M,c:{}};var key=r.pos+'|'+ds;if(BCM.c[k
   var offR=0,onR=0;A.L.forEach(function(x){if(x.ch==='ON')onR++;else offR++});
   var pv=ds<=M.to?(pcd[ds]||[0,0,0,0]):[0,0,0,0],pl=[0,0,0,0];past.forEach(function(d){var v=pcd[d];if(v)for(var i=0;i<4;i++)pl[i]+=v[i]});
   var callLk=0;past.forEach(function(d){callLk+=dyData(d).by[r.pos].n});
+  var callM=0;M.workdays.forEach(function(d){callM+=dyData(d).by[r.pos].n});
   var lk=0;past.forEach(function(d){lk+=daily[d]||0});
   var o={has:ds<=M.to,
     to:{ctn:P.tgt/W,mtn:dyTg(r,P,ds),th:ds<=M.to?daily[ds]||0:0,lk:lk,ctlk:P.tgt/W*k,tgt:P.tgt},
     aof:{ct:offR,th:cnt(dayOd,isCh('OFF')),lk:cnt(keys,isCh('OFF')),tot:Object.keys(CI).filter(function(c){return CI[c].ch==='OFF'}).length},
     aon:{ct:onR,th:cnt(dayOd,isCh('ON')),lk:cnt(keys,isCh('ON')),tot:Object.keys(CI).filter(function(c){return CI[c].ch==='ON'}).length},
-    pc:{call:A.n,th:pv[0]+pv[1],lk:pl[0]+pl[1],calllk:callLk},
+    pc:{call:A.n,th:pv[0]+pv[1],lk:pl[0]+pl[1],calllk:callLk,callm:callM},k:k,
     lp:{pc:pv[2],ln:pv[3],pcl:pl[2],lnl:pl[3]},
     mbs:{ct:A.vip+A.dai,th:cnt(dayOd,function(c){return HV[c]}),lk:cnt(keys,function(c){return HV[c]}),tot:Object.keys(HV).length},
     cb:{ct:A.cbo+A.cbn,th:Object.keys(cbDay).filter(function(c){return CB[c]}).length,lk:Object.keys(cbLk).filter(function(c){return CB[c]}).length,tot:Object.keys(CB).length}};
@@ -3586,9 +3587,8 @@ function bcAuto(sc,ds){var z=bcAgg(sc.L,ds),t=z.to,p=function(a,b){return b?dec(
     '• MBS hội viên: '+z.mbs.th+'/'+m(z.mbs.ct,.8)+' KH ('+p(z.mbs.th,m(z.mbs.ct,.8))+') · đã active '+z.mbs.lk+'/'+z.mbs.tot,
     '• Combo: '+z.cb.th+'/'+m(z.cb.ct,.8)+' KH ('+p(z.cb.th,m(z.cb.ct,.8))+') · đã đạt '+z.cb.lk+'/'+z.cb.tot].join('\n')}
 function bcText(sc,ds){var v=bcLoad(bcKey(ds,sc)),s=bcAuto(sc,ds);BC_F.forEach(function(f){if(v[f[0]])s+='\n\n'+f[1].toUpperCase()+':\n'+v[f[0]]});return s}
-function bcSec(sc,ds,dayName){var tt='Báo cáo ngày '+dayName+' '+dmy(ds)+' – '+sc.who,v=bcLoad(bcKey(ds,sc)),has=ds<=M.to;
-  var ssBlk=BC_F.filter(function(f){return v[f[0]]}).map(function(f){return'<div><b>'+esc(f[1])+':</b> '+esc(v[f[0]]).replace(/\n/g,'<br>')+'</div>'}).join('');
-  return rpSec('dybc','BC','#0f172a','Báo cáo ngày theo hạng mục · Sale sup báo cáo','<div class="rp-ban">'+esc(tt)+' <small>'+(has?'(doanh số Triệu · KH · đơn)':'· ngày chưa có số liệu (data đến '+dmy(M.to)+') — chỉ hiện chỉ tiêu / mục tiêu')+'</small></div>'+
+function bcSec(sc,ds,dayName){var tt='Báo cáo ngày '+dayName+' '+dmy(ds)+' – '+sc.who,has=ds<=M.to;
+  return rpSec('dybc','BC','#0f172a','Báo cáo ngày theo hạng mục – chi tiết ĐDKD','<div class="rp-ban">'+esc(tt)+' <small>'+(has?'(doanh số Triệu · KH · đơn)':'· ngày chưa có số liệu (data đến '+dmy(M.to)+') — chỉ hiện chỉ tiêu / mục tiêu')+'</small></div>'+
     '<div class="rp-filt"><button data-rpexp="bc|1">Mở hết ĐDKD</button><button data-rpexp="bc|0">Thu gọn</button><button class="rp-fbtn" data-rpfocus="dybc">'+(ui.rpFocus==='dybc'?'✕ Thoát Focus':'⛶ Focus xem full')+'</button><button class="rp-snapbtn" data-snap="dybc" data-snapt="'+esc(tt)+'">📷 Chụp ảnh báo cáo</button></div>'+
     '<div class="rp-tw"><table class="rp-t bct"><tr><th rowspan="2">NPP / SS / ĐDKD</th><th colspan="7" class="g gs" style="background:#dc2626">TO · Doanh số (Tr)</th><th colspan="5" class="g gs" style="background:#1d4ed8">ASO OFF</th><th colspan="5" class="g gs" style="background:#0e7490">ASO ON</th><th colspan="7" class="g gs" style="background:#7c3aed">PC (đơn)</th><th colspan="2" class="g gs" style="background:#0f766e">LPPC</th><th colspan="5" class="g gs" style="background:#b45309">MBS · Hội viên</th><th colspan="5" class="g gs" style="background:#ea580c">Combo</th></tr>'+
     '<tr><th class="gs">CT ngày</th><th>Mục tiêu ngày</th><th>TH ngày</th><th>%</th><th>TH cộng dồn</th><th>CT cộng dồn</th><th>%</th>'+
@@ -3599,17 +3599,32 @@ function bcSec(sc,ds,dayName){var tt='Báo cáo ngày '+dayName+' '+dmy(ds)+' �
     '<th class="gs">CT ngày<small>HV tuyến</small></th><th>MT 80%</th><th>TH ngày</th><th>%</th><th>Active<small>/ Target</small></th>'+
     '<th class="gs">CT ngày<small>KH Combo tuyến</small></th><th>MT 80%</th><th>TH ngày</th><th>%</th><th>Đạt<small>/ Target</small></th></tr>'+
     rpRows(function(L){return bcCells(L,ds)},{key:'bc'})+'</table></div>'+
-    '<div class="rp-note bcss"><b>📝 Sale sup báo cáo:</b>'+(ssBlk||' <span class="t-mu">(chưa nhập — điền ở khung bên dưới)</span>')+'</div>'+
-    '<div class="bcform"><div class="bcfh"><b>📝 Phần Sale sup báo cáo</b> <small class="t-mu">· '+esc(sc.who)+' · ngày '+dmy(ds)+' · lưu trên máy này, tự đưa vào ảnh chụp và bản copy</small></div>'+
-    BC_F.map(function(f){return'<label class="bcl"><span>'+esc(f[1])+'</span><textarea data-bcf="'+f[0]+'" rows="2" placeholder="Nhập…">'+esc(v[f[0]]||'')+'</textarea></label>'}).join('')+
-    '<div class="rp-filt"><button class="rp-snapbtn" data-bccopy="1">📋 Copy báo cáo gửi Zalo</button><span class="who" id="bcmsg"></span></div></div>'+
     '<div class="rp-note"><b>Cách tính:</b> <b>TO</b>: CT ngày = chỉ tiêu tháng / '+M.workdays.length+' ngày công; Mục tiêu ngày = (chỉ tiêu tháng − TH các ngày trước) / số ngày bán hàng còn lại; CT cộng dồn = CT ngày × số ngày bán hàng đã qua. <b>ASO OFF/ON</b>: CT ngày = số KH OFF/ON viếng thăm trong ngày (lịch MCP); Mục tiêu = 70% (OFF) / 50% (ON); TH = KH có đơn trong ngày; cộng dồn = KH active (có đơn) từ đầu tháng. <b>PC</b>: Call = số KH viếng thăm; CT = call × 75%; TH = số đơn phát sinh DS; CT cộng dồn = Σ(call × 75%) các ngày đã qua. <b>LPPC</b> (không tính Meat/Bia, cả ON + OFF) = số mã / số đơn, CT 4,7. <b>MBS</b>: CT ngày = KH hội viên viếng thăm; MT 80%; TH = KH hội viên có phát sinh DS; Active / Target = HV đã có đơn / tổng HV. <b>Combo</b>: CT ngày = KH tham gia Combo viếng thăm; MT 80%; TH = KH đạt đơn Combo (nhận quà) trong ngày; Đạt / Target = KH đã đạt / tổng KH tham gia.</div>'+
     '<style>.bct td,.bct th{white-space:nowrap}.bcform{margin:10px 0;padding:10px 12px;border:1px dashed #94a3b8;border-radius:10px;background:#f8fafc}.bcfh{margin-bottom:6px}.bcl{display:block;margin:6px 0}.bcl span{display:block;font-weight:700;font-size:.82rem;margin-bottom:2px}.bcl textarea{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px;padding:6px 8px;font:inherit;font-size:.9rem;resize:vertical;background:#fff;color:#0f172a}.bcss div{margin-top:4px}</style>')}
-document.addEventListener('input',function(e){var t=e.target.closest&&e.target.closest('[data-bcf]');if(!t)return;var ds=ui.bcDs,sc=rpScope();if(!ds)return;var k=bcKey(ds,sc),v=bcLoad(k);v[t.dataset.bcf]=t.value;bcSave(k,v);
-  var nb=document.querySelector('#dybc .bcss');if(nb){var s=BC_F.filter(function(f){return v[f[0]]}).map(function(f){return'<div><b>'+esc(f[1])+':</b> '+esc(v[f[0]]).replace(/\n/g,'<br>')+'</div>'}).join('');nb.innerHTML='<b>📝 Sale sup báo cáo:</b>'+(s||' <span class="t-mu">(chưa nhập — điền ở khung bên dưới)</span>')}});
-document.addEventListener('click',function(e){var t=e.target.closest('[data-bccopy]');if(!t)return;var txt=bcText(rpScope(),ui.bcDs),m=document.getElementById('bcmsg');
-  var ok=function(){if(m)m.textContent='✓ Đã copy — dán vào Zalo'},fb=function(){var a=document.createElement('textarea');a.value=txt;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(x){if(m)m.textContent='Không copy được'}a.remove()};
-  try{navigator.clipboard.writeText(txt).then(ok,fb)}catch(x){fb()}});
+
+/* Bảng tổng hợp BÁO CÁO NGÀY (mẫu Excel giám sát) */
+function bcSum(sc,ds,dayName){var L=sc.L,W=M.workdays.length,R=L.map(function(r){return{r:r,o:bcRep(r,ds)}}),z=bcAgg(L,ds),has=ds<=M.to,k=R.length?R[0].o.k:0,TG=W?k/W:0;
+  var SSN=[];L.forEach(function(r){if(SSN.indexOf(r.ss)<0)SSN.push(r.ss)});var ss=SSN.join(' + ');
+  var row=function(lbl,ct,mt,th,fmt,okD,lk,cmt,fmtM,okM,ratio){var pd=mt?th/mt:0,pm=cmt?lk/cmt:0,nd=R.filter(function(x){return okD(x.o)}).length,nm=R.filter(function(x){return okM(x.o)}).length,cls=function(p,t){return p>=t?'bcg':'bcr'};
+    return'<tr><td class="bcl0">'+lbl+'</td><td>'+fmt(ct)+'</td><td>'+fmt(mt)+'</td><td><b>'+(has?fmt(th):'–')+'</b></td><td class="'+(has?cls(pd,1):'')+'"><b>'+(has?dec(pd*100,1)+'%':'–')+'</b></td><td>'+(has?nd:'–')+'</td><td>'+(has?L.length-nd:'–')+'</td>'+
+      '<td class="bcm"><b>'+fmtM(lk)+'</b></td><td>'+fmtM(cmt)+'</td><td class="'+cls(pm,ratio?1:TG)+'"><b>'+dec(pm*100,1)+'%</b></td><td>'+dec(TG*100,1)+'%</td><td>'+nm+'</td><td>'+(L.length-nm)+'</td></tr>'};
+  var t=z.to,aT=function(o){return{call:o.pc.call,th:o.aof.th+o.aon.th,lk:o.aof.lk+o.aon.lk,tot:o.aof.tot+o.aon.tot}},a=aT(z),lp=z.lp;
+  var r8=function(n){return Math.round(n*.8)},r75=function(n){return Math.round(n*.75)},lpD=function(o){return o.lp.pc?o.lp.ln/o.lp.pc:0},lpM=function(o){return o.lp.pcl?o.lp.lnl/o.lp.pcl:0};
+  var f1=function(v){return tr1(v)},fi=function(v){return int(v)},f2=function(v){return dec(v,2)};
+  var rows=row('1/ Doanh số (Tr)',t.ctn,t.mtn,t.th,f1,function(o){return o.to.th>=o.to.mtn&&o.to.mtn>0||o.to.mtn===0},t.lk,t.tgt,f1,function(o){return o.to.tgt?o.to.lk/o.to.tgt>=TG:true})+
+    row('2/ ASO (ON+OFF) <small>(mục tiêu 80% call)</small>',a.call,r8(a.call),a.th,fi,function(o){var q=aT(o);return q.th>=r8(q.call)},a.lk,a.tot,fi,function(o){var q=aT(o);return q.tot?q.lk/q.tot>=TG:true})+
+    row('3/ PC (ON+OFF) <small>(75% call tháng)</small>',r75(z.pc.call),r75(z.pc.call),z.pc.th,fi,function(o){return o.pc.th>=r75(o.pc.call)},z.pc.lk,r75(z.pc.callm),fi,function(o){var c=r75(o.pc.callm);return c?o.pc.lk/c>=TG:true})+
+    row('4/ LPPC <small>(trừ Meat/Bia)</small>',BC_LP,BC_LP,lp.pc?lp.ln/lp.pc:0,f2,function(o){return lpD(o)>=BC_LP},lp.pcl?lp.lnl/lp.pcl:0,BC_LP,f2,function(o){return lpM(o)>=BC_LP},true)+
+    row('5/ Hội viên DN <small>(phát sinh &gt;80% KH VT)</small>',z.mbs.ct,r8(z.mbs.ct),z.mbs.th,fi,function(o){return o.mbs.th>=r8(o.mbs.ct)},z.mbs.lk,z.mbs.tot,fi,function(o){return o.mbs.tot?o.mbs.lk/o.mbs.tot>=TG:true})+
+    row('6/ PC Combo <small>(mục tiêu chốt &gt;80% KH VT)</small>',z.cb.ct,r8(z.cb.ct),z.cb.th,fi,function(o){return o.cb.th>=r8(o.cb.ct)},z.cb.lk,z.cb.tot,fi,function(o){return o.cb.tot?o.cb.lk/o.cb.tot>=TG:true});
+  var tt='Báo cáo ngày '+dmy(ds)+' – '+sc.who;
+  return rpSec('dybs','BC','#0b5d8f','Báo cáo ngày – tổng hợp','<div class="rp-ban">BÁO CÁO NGÀY · '+esc(dayName+' '+dmy(ds))+' · '+esc(sc.who)+(has?'':' <small>· ngày chưa có số liệu (data đến '+dmy(M.to)+')</small>')+'</div>'+
+    '<div class="rp-filt"><button class="rp-snapbtn" data-snap="dybs" data-snapt="'+esc(tt)+'">📷 Chụp ảnh báo cáo</button><span class="who">Chọn Team/ĐDKD ở bộ lọc trên cùng để ra báo cáo riêng · chọn ngày ở dòng "Đã đi (tracking)"</span></div>'+
+    '<div class="rp-tw"><table class="rp-t bcs"><tr><td colspan="13" class="bchd"><div><span>Giám sát</span><b>'+esc(ss)+'</b><span>Ngày báo cáo</span><b>'+dmy(ds)+'</b></div><div><span>Tổng ĐDKD</span><b>'+L.length+'</b><span>Ngày đã qua</span><b>'+k+'</b></div><div><span>% Times gone</span><b>'+dec(TG*100,1)+'%</b><span>Tổng ngày kỳ</span><b>'+W+'</b></div></td></tr>'+
+    '<tr><th rowspan="2" style="min-width:210px">Chỉ tiêu</th><th colspan="6" class="g gs" style="background:#38bdf8;color:#0b3a5c">TRONG NGÀY</th><th colspan="6" class="g gs" style="background:#38bdf8;color:#0b3a5c">CỘNG DỒN (MTD)</th></tr>'+
+    '<tr><th class="gs">CT ngày</th><th>Mục tiêu fix</th><th>TH</th><th>% Đạt</th><th>SL ĐDKD đạt</th><th>Rớt</th><th class="gs">TH cộng dồn</th><th>Chỉ tiêu</th><th>% TH</th><th>% Times gone</th><th>SL ĐDKD đạt tiến độ</th><th>Rớt</th></tr>'+rows+'</table></div>'+
+    '<div class="rp-note"><b>Cách tính:</b> Doanh số: CT ngày = CT tháng / '+W+' ngày; Mục tiêu fix = (CT tháng − TH các ngày trước) / ngày còn lại; ĐDKD đạt = TH ≥ mục tiêu; đạt tiến độ = %TH tháng ≥ % times gone. ASO: CT ngày = số KH viếng thăm (call), mục tiêu 80% call, TH = KH có đơn; cộng dồn = KH active / tổng KH MCP. PC: CT = 75% call ngày, TH = số đơn; cộng dồn so với 75% tổng call cả tháng. LPPC = số mã / số đơn (trừ Meat, Bia), CT 4,7. Hội viên: CT = HV viếng thăm, mục tiêu 80%, TH = HV phát sinh DS; cộng dồn = HV đã active / tổng HV. Combo: CT = KH tham gia Combo viếng thăm, mục tiêu 80%, TH = KH đạt đơn Combo; cộng dồn = KH đã đạt / tổng KH tham gia.</div>'+
+    '<style>.bcs td{text-align:right}.bcs td.bcl0{text-align:left;font-weight:800;white-space:nowrap}.bcs .bcg{background:#dcfce7;color:#166534}.bcs .bcr{background:#fee2e2;color:#b91c1c}.bcs td.bcm{border-left:2px solid #dc2626}.bcs .bchd{background:#fff;text-align:left}.bcs .bchd div{display:grid;grid-template-columns:130px 1fr 130px 120px;gap:4px 10px;padding:2px 4px}.bcs .bchd span{font-weight:700}.bcs .bchd b{color:#1d4ed8;background:#eff6ff;padding:0 8px}</style>')}
 
 /* ---------------- TAB TRƯNG BÀY: đăng ký (danh sách KH) + bộ hình chấm real-time + RAW P.BI ---------------- */
 var TB_T=6,TBC=null;
