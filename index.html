@@ -1133,7 +1133,7 @@ var KPI = (function () {
   /* Công văn 26 (từ T11/2026): LPPC đơn ≥1 mã; Trận Xanh = 1 đơn MOQ có đồng thời 2 nhóm SP Tết: Nước giặt xả Chanté + Trà Bupnon TEA365 (20 ASO); Trận Vàng = Hạt nêm Chinsu ngọt thanh xương hầm cô đặc (15 ASO) */
   var TET = { 'Nam Ngư': ['03NM00980', '03NM00981', '03NM00984', '03NM00798', '03NM00797', '03NM00982', '03NM00983'], 'Chinsu': ['03OT00548', '03OT00547', '03OT00559', '03OT00558', '03OT00382', '03OT00381', '03OT00215', '03OT00214', '03OT00217', '03OT00216', '03NM00986', '03NM00987', '03NM00988'], 'Kokomi': ['02KK00313', '02KK00361', '02KK00360'], 'Omachi': ['02OM00338', '02OM00772', '02OM00770', '02OM00771', '02OM00951'], 'Chanté': ['04HP00636', '04HP00637', '04HP00638'], 'Vinacafé': ['08CF00980', '08CF00979'], 'TEA365': ['08TR00055', '08TR00056', '08TR00057'], 'Wake up 247': ['08TL00111'] };
   var TETC = {}; for (var tb in TET) TET[tb].forEach(function (c) { TETC[c] = tb; });
-  function rulesFor(ym) { return ym >= '2026-11' ? { cv: 26, lppcMin: 1, focus1: 20, focus2: 15, f1: 'tet2', f1n: 'Trận Xanh · KH mua đủ Chanté NGX Tết + Tea 365 Tết (MOQ, có thể khác đơn)', f2n: 'Trận Vàng · Hạt nêm ngọt thanh xương hầm, mỗi loại ≥6 lẻ/đơn' } : { cv: 21, lppcMin: 4, focus1: 72, focus2: 26, f1: 'obj', f1n: 'Trận Xanh · Trà Búp Non Tea 365', f2n: 'Trận Vàng · Homey Jeju túi 2.9kg' }; }
+  function rulesFor(ym) { return ym >= '2026-11' ? { cv: 26, lppcMin: 1, focus1: 20, focus2: 15, f1: 'tet2', f1n: 'Trận Xanh · KH 3 nhóm ưu tiên mua đủ Chanté NGX Tết + Tea 365 Tết (MOQ, có thể khác đơn)', f2n: 'Trận Vàng · Hạt nêm ngọt thanh xương hầm, mỗi loại ≥6 lẻ/đơn' } : { cv: 21, lppcMin: 4, focus1: 72, focus2: 26, f1: 'obj', f1n: 'Trận Xanh · Trà Búp Non Tea 365', f2n: 'Trận Vàng · Homey Jeju túi 2.9kg' }; }
   var HVG = ['Chanté', 'Chinsu', 'Kokomi', 'Nam Ngư'];
   function packQty(desc) { var m = String(desc || '').match(/(\d+)\s*(bl|lốc|chai|lon|gói|hộp|túi)/gi), q = 1; (m || []).forEach(function (t) { q *= parseInt(t, 10) || 1; }); return q; }
   var POLICY = {
@@ -1610,6 +1610,7 @@ var ROOT=JSON.parse(document.getElementById('kpi-state').textContent),VIEW='';
 /* Xem lại tháng đã lưu (ROOT.arch[yyyy-mm]): ghép lịch sử dùng chung với lịch sử riêng của tháng đó */
 function viewState(k){if(!k||!ROOT.arch||!ROOT.arch[k])return ROOT;var a=ROOT.arch[k],h={},s={};for(var x in (ROOT.hist||{}))if(x<k)h[x]=ROOT.hist[x];for(var y in (a.hist||{}))if(y<k)h[y]=a.hist[y];for(var z in a)s[z]=a[z];s.hist=h;return s}
 var STATE=ROOT;
+(function(){var bm=KPI.buildModel;KPI.buildModel=function(){var m=bm.apply(this,arguments);try{if(typeof txFix==='function')txFix(m)}catch(e){console.error(e)}return m}})();
 var M=KPI.buildModel(STATE), P=KPI.POLICY;
 /* MCP đầy đủ (gồm KH tạo sau ngày chốt) cho các mục review ở Fundamental & Tổng quan; KPI theo công văn dùng M (MCP chốt) */
 var MFC=null;function getMF(){if(MFC&&MFC.k===M)return MFC.v;var v=M;if(STATE.salesF&&STATE.mcp&&STATE.mcp.nw&&STATE.mcp.nw.length){try{v=KPI.buildModel(Object.assign({},STATE,{mcp:KPI.fullMcp(STATE.mcp),sales:STATE.salesF}))}catch(e){v=M}}MFC={k:M,v:v};return v}
@@ -2323,7 +2324,7 @@ function vRep(){
   if(!defs[ui.olist])ui.olist='aso';var olb=ui.olb||'no',dk=defs[ui.olist],want=olb==='yes';
   var base=function(k){var S=defs[k][3];return S?mine.filter(function(o){return S[o[0]]}):mine};
   var lst=base(ui.olist).filter(function(o){return dk[1](o)===want}).sort(function(a,b){if(dk[3])return dk[3][a[0]].g-dk[3][b[0]].g||b[7]-a[7];var B=BUY[ui.olist];return B&&want?(B[b[0]]||0)-(B[a[0]]||0):b[7]-a[7]});
-  var HINT={aso:'đơn có hàng MOQ',f1:cv26?'mua đủ Chanté NGX Tết + Tea 365 Tết (MOQ, có thể khác đơn)':'',tx:'KH ưu tiên (Đại sứ TB → VIP 3–5 → Lẻ lớn) đạt Trận Xanh = mua đủ Chanté Tết + Tea 365 Tết (MOQ, có thể khác đơn)',f2:cv26?'Hạt nêm ngọt thanh mỗi loại ≥6 lẻ':'',xot:'có doanh số Xốt mỹ vị',hm:'có doanh số Homey',tea:'có doanh số Tea 365'};
+  var HINT={aso:'đơn có hàng MOQ',f1:cv26?'KH 3 nhóm ưu tiên (Đại sứ TB · VIP3–5 · Lẻ lớn) mua đủ Chanté NGX Tết + Tea 365 Tết (MOQ, có thể khác đơn)':'',tx:'KH ưu tiên (Đại sứ TB → VIP 3–5 → Lẻ lớn) đạt Trận Xanh = mua đủ Chanté Tết + Tea 365 Tết (MOQ, có thể khác đơn)',f2:cv26?'Hạt nêm ngọt thanh mỗi loại ≥6 lẻ':'',xot:'có doanh số Xốt mỹ vị',hm:'có doanh số Homey',tea:'có doanh số Tea 365'};
   h+='<div class="panel"><div class="sec-head"><h2>Khách cần ghé để gỡ KPI</h2><span class="hint">'+(want&&BUY[ui.olist]?'Sắp theo số tiền đã mua':'Sắp theo doanh số TB 3 tháng')+'</span></div>'+
     '<div class="kpisel" style="margin:8px 0">'+[['no','Chưa mua / chưa đạt'],['yes','Đã mua / đã đạt']].map(function(b){var n=base(ui.olist).filter(function(o){return dk[1](o)===(b[0]==='yes')}).length;return'<button class="chip" data-olb="'+b[0]+'" aria-pressed="'+(olb===b[0])+'" style="'+(olb===b[0]?'':'')+'">'+(b[0]==='yes'?'✓ ':'✗ ')+b[1]+' ('+n+')</button>'}).join('')+'</div>'+
     '<div class="kpisel" style="margin:0 0 8px">'+Object.keys(defs).map(function(k){var n=base(k).filter(function(o){return defs[k][1](o)===want}).length;return'<button class="chip" data-ol="'+k+'" aria-pressed="'+(ui.olist===k)+'">'+defs[k][0]+' ('+n+')</button>'}).join('')+'</div>'+
@@ -2766,7 +2767,7 @@ function tqBon(q){var B=P.bonus||{},m=function(v){return v>=1e6?dec(v/1e6,v%1e5?
   switch(q){case'turnover':return'100% → '+m(B.turnover)+' · 95% → '+m(B.turnover95);case'aso':return'100% → '+m(B.aso);case'pcbt':return'100% → '+m(B.pcbt);case'pcon':return'100% → '+m(B.pcon);
   case'f1':return'100% → '+m(B.f1)+' · 90% → '+m(B.f1_90);case'f2':return'100% → '+m(B.f2)+' · 90% → '+m(B.f2_90);case'lppc':return'≥'+dec(P.lppc2,1)+' → '+m(B.lppc2)+' · ≥'+dec(P.lppc1,1)+' → '+m(B.lppc1);case'meat':return'≥'+dec(P.meat,1)+' → '+m(B.meat)}return''}
 function tqDefs(){
-  var CV26=M.rules&&M.rules.cv===26;TQK=[['turnover','Doanh số tháng','Triệu','banknote'],['aso','ASO Tổng','80% MCP đạt KPI','users'],['pcbt','PC OFF','65% Call OFF','shopping-cart'],['pcon','PC ON','50% Call ON','coffee'],['f1','ASO FC1 · Trận Xanh',CV26?'Chanté NGX Tết + Tea 365 Tết · '+M.rules.focus1+' ASO':'Tea 365','leaf'],['f2','ASO FC2 · Trận Vàng',CV26?'HN ngọt thanh · mỗi loại ≥6 lẻ · '+M.rules.focus2+' ASO':'Homey Jeju 2.9kg','droplet'],['lppc','LPPC',CV26?'Trừ Meat/Bia · đơn ≥1 line':'Trừ Meat/Bia · đơn ≥4 line','layers'],['meat','LPPC Meat','ON+OFF','beef']];}
+  var CV26=M.rules&&M.rules.cv===26;TQK=[['turnover','Doanh số tháng','Triệu','banknote'],['aso','ASO Tổng','80% MCP đạt KPI','users'],['pcbt','PC OFF','65% Call OFF','shopping-cart'],['pcon','PC ON','50% Call ON','coffee'],['f1','ASO FC1 · Trận Xanh',CV26?'KH 3 nhóm ưu tiên · Chanté NGX Tết + Tea 365 Tết · '+M.rules.focus1+' ASO':'Tea 365','leaf'],['f2','ASO FC2 · Trận Vàng',CV26?'HN ngọt thanh · mỗi loại ≥6 lẻ · '+M.rules.focus2+' ASO':'Homey Jeju 2.9kg','droplet'],['lppc','LPPC',CV26?'Trừ Meat/Bia · đơn ≥1 line':'Trừ Meat/Bia · đơn ≥4 line','layers'],['meat','LPPC Meat','ON+OFF','beef']];}
 function tqKpiSec(id,num){
   /* 2. bảng KPI */
   var TK=TQK.filter(function(q){return q[0]!=='f1'&&q[0]!=='f2'}).concat(TQK.filter(function(q){return q[0]==='f2'}),TQK.filter(function(q){return q[0]==='f1'}));
@@ -2799,6 +2800,9 @@ var TXB=null;function txInfo(){if(TXB&&TXB.M===M)return TXB;var o={M:M,inf:{},C:
   var TC={},TT={},IT=(STATE.sales||{}).items||[];(KPI.TET['Chanté']||[]).forEach(function(c){TC[c]=1});(KPI.TET['TEA365']||[]).forEach(function(c){TT[c]=1});
   M.reps.forEach(function(r){(r.ol||[]).forEach(function(q){(q[5]||[]).forEach(function(l){if(l[2]>0){if(TC[IT[l[0]]])o.C[q[0]]=1;if(TT[IT[l[0]]])o.T[q[0]]=1}})});((r.covered||{}).f1||[]).forEach(function(c){o.X[c]=1})});return TXB=o}
 function txGrpOf(q){return q.g===1?'Đại sứ TB':q.g===2?q.vip:'Lẻ lớn'}
+/* CV26 – Trận Xanh KPI chỉ tính KH thuộc 3 nhóm ưu tiên (Đại sứ TB · VIP3–5 · Lẻ lớn) */
+function txFix(m){if(typeof TBCOL==='undefined'||!TBCOL||!m||!m.rules||m.rules.cv!==26||!m.reps)return m;var sv=M;M=m;var G;try{TQG=null;G=tqGroups()}finally{M=sv}if(!G)return m;var B=(m.policy&&m.policy.bonus)||{};
+  m.reps.forEach(function(r){if(!r.k||!r.k.f1||!r.covered)return;var all=r.covered.f1||[],cov=all.filter(function(c){return G.inf[c]}),k=r.k.f1,ob=k.b||0;r.covered.f1all=all;r.covered.f1=cov;k.a=cov.length;k.out=all.length-cov.length;k.p=k.t?k.a/k.t:0;k.b=k.p>=1?B.f1:k.p>=.9?B.f1_90:0;r.bonus=(r.bonus||0)-ob+k.b});return m}
 
 /* ---------------- TAB FUNDAMENTAL ---------------- */
 function funRow(L){var z=ksData(L),A=z.A,D=M.elapsed||1,act=z.aOff+z.aOn,m=z.mOff+z.mOn,cT=(z.cOff+z.cOn)*TIME,pOff=z.kx.off.all[0],pOn=z.kx.on.all[0];
@@ -4074,6 +4078,7 @@ document.addEventListener('click',function(e){var t=e.target.closest('[data-cftx
 document.addEventListener('keydown',function(e){var c=e.target.closest&&e.target.closest('.cat.drill');if(c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();c.click();return}var sm=document.getElementById('shotmodal');if(e.key==='Escape'&&sm&&!sm.hidden){sm.hidden=true;return}if(e.key==='Escape'&&(ui.focus||ui.dFocus||ui.ksFocus)){ui.focus=false;ui.dFocus=false;ui.ksFocus=false;render()}});
 try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){render()})}catch(e){}
 var rzT,rzW=window.innerWidth;window.addEventListener('resize',function(){clearTimeout(rzT);rzT=setTimeout(function(){if(ui.tab==='daily'){rzW=window.innerWidth;render()}if(ui.tab==='kpi')fitKpi()},250)});
+try{txFix(M);TBC=null;TQG=null}catch(e){console.error(e)}
 render();
 if(window.claude&&claude.use)claude.use('user').then(function(u){return u?u.canEdit():false}).then(function(c){if(c){canEdit=true;render()}}).catch(function(){});
 })();
