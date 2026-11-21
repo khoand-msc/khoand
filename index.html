@@ -3040,7 +3040,7 @@ function vHV(){
     kc(cls,'target','Doanh số / chỉ tiêu nền',dec(Z.p*100,1)+'%',tr1(Z.th)+' / '+tr1(Z.base)+' Tr · tiến độ '+dec(TIME*100,1)+'%',kbar(Z.p,cls,TIME))+
     kc(Z.l1?'good':'bad','award','KH đạt ≥95% chỉ tiêu nền',int(Z.l1),'Mức 2 (≥100%): '+int(Z.l2)+' · Mức 3 (≥105%): '+int(Z.l3))+
     kc('pu','layers','Tiêu chí 2 – nhãn trọng điểm','ĐS '+int(Z.f4)+'/'+int(Z.dai)+' · VIP '+int(Z.v5)+'/'+int(Z.n-Z.dai),'ĐS: đủ 4 nhãn, mỗi nhãn ≥150k · VIP: 4 nhãn cộng lại ≥500k')+kc(Z.ok?'good':'na','gift','Thưởng dự kiến',vnd0(Z.rw),int(Z.ok)+' KH đủ ĐK xét thưởng · '+int(Z.m1x)+' KH đạt M1+ rớt TC2'+(Z.lost>=1?' · mất '+vnd0(Z.lost)+' do vượt cap':''))+'</div>';
-  h+='<div class="rp-sec" style="padding:10px 14px"><b style="color:#1e40af">Phân bổ hội viên theo % đạt chỉ tiêu nền</b> <small class="t-mu">· bấm 1 nhóm để lọc danh sách KH của từng ĐDKD</small>'+hvBar(all)+'</div>';
+  h+='<div class="rp-sec" style="padding:10px 14px"><b style="color:#1e40af">Phân bổ hội viên theo % đạt chỉ tiêu nền – '+esc(sc.who)+'</b> <small class="t-mu">· bấm 1 nhóm để lọc danh sách KH của từng ĐDKD</small>'+hvBar(rows)+'</div>';
   h+=rpNav([['hv1','Theo Team / ĐDKD']].concat(STATE.cap&&STATE.cap.kh?[['hvcap','Cáp trần 115% SKU']]:[]).concat([['hv2','Theo nhãn hàng']]));
   /* 1. bảng Team/ĐDKD */
   var cell=function(L){var p={};L.forEach(function(r){p[r.pos]=1});var z=hvAgg(all.filter(function(x){return p[x.pos]}));
