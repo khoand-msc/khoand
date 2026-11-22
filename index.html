@@ -2326,7 +2326,7 @@ function vRep(){
   var cv26=M.rules&&M.rules.cv===26,defs={aso:['Đơn MOQ',function(o){return!!cov.aso[o[0]]}],f1:[cv26?'Trận Xanh':'ASO Tea 365',function(o){return!!cov.f1[o[0]]}],f2:[cv26?'Trận Vàng':'ASO Homey Jeju',function(o){return!!cov.f2[o[0]]}]};
   var TXG=cv26&&typeof tqGroups==='function'?tqGroups():null,TXI={},TXC={},TXT={};
   if(TXG){Object.keys(TXG.inf).forEach(function(c){if(TXG.inf[c].pos===r.pos)TXI[c]=TXG.inf[c]});var TC={},TT={};(KPI.TET['Chanté']||[]).forEach(function(c){TC[c]=1});(KPI.TET['TEA365']||[]).forEach(function(c){TT[c]=1});var IT=STATE.sales.items||[];
-    (r.ol||[]).forEach(function(q){(q[5]||[]).forEach(function(l){if(l[2]>0){if(TC[IT[l[0]]])TXC[q[0]]=1;if(TT[IT[l[0]]])TXT[q[0]]=1}})});
+    if(r.tetk){for(var tc in r.tetk){if(r.tetk[tc]&1)TXC[tc]=1;if(r.tetk[tc]&2)TXT[tc]=1}}else(r.ol||[]).forEach(function(q){(q[5]||[]).forEach(function(l){if(l[2]>0){if(TC[IT[l[0]]])TXC[q[0]]=1;if(TT[IT[l[0]]])TXT[q[0]]=1}})});
     var d2={};Object.keys(defs).forEach(function(k){d2[k]=defs[k];if(k==='f1')d2.tx=['⭐ KH ưu tiên Trận Xanh',function(o){return!!cov.f1[o[0]]},0,TXI]});defs=d2}
   BG.forEach(function(g){defs[g[0]]=[g[1],function(o){return!!BUY[g[0]][o[0]]},1]});
   if(!defs[ui.olist])ui.olist='aso';var olb=ui.olb||'no',dk=defs[ui.olist],want=olb==='yes';
@@ -2998,7 +2998,7 @@ function thDx(sc){var T=tqGroups(),IT=(STATE.sales||{}).items||[],TC={},TT={};(K
   var CT=M.rules&&M.rules.focus1||20,yn=function(b){return b?'<b class="t-good">✓</b>':'<span class="t-bad">✗</span>'},RS=[];
   var sumRow=function(cls,attr,lab,L,nr){var cnt=function(f){return L.filter(f).length},n1=cnt(function(k){return k.q.g===1}),n3=cnt(function(k){return k.q.g===3}),nx=cnt(function(k){return k.X}),ct=CT*nr;
     return'<tr class="'+cls+'" '+attr+'><td style="text-align:left;white-space:nowrap"><b>'+lab+'</b></td><td style="text-align:left"><b>'+int(L.length)+'</b> KH <small class="t-mu">· CT '+int(ct)+' ASO</small></td><td style="text-align:left"><small>Ưu tiên 1: <b>'+int(n1)+'</b> · Ưu tiên 2: <b>'+int(L.length-n1-n3)+'</b>'+(n3?' · Lẻ lớn: <b>'+int(n3)+'</b>':'')+'</small></td><td><b>'+int(cnt(function(k){return k.C}))+'</b></td><td><b>'+int(cnt(function(k){return k.T}))+'</b></td><td>'+plc(nx>=ct?'good':nx?'warn':'bad',int(nx)+(nr>1?' <small>('+dec(ct?nx/ct*100:0,1)+'%)</small>':''),true)+'</td><td><b>'+int(cnt(function(k){return k.V}))+'</b></td></tr>'};
-  sc.L.forEach(function(r){var C={},Tz={},X={},V={};(r.ol||[]).forEach(function(o){(o[5]||[]).forEach(function(l){if(l[2]>0){if(isC[l[0]])C[o[0]]=1;if(isT[l[0]])Tz[o[0]]=1}})});(r.covered.f1||[]).forEach(function(c){X[c]=1});(r.covered.f2||[]).forEach(function(c){V[c]=1});
+  sc.L.forEach(function(r){var C={},Tz={},X={},V={};if(r.tetk){for(var tc in r.tetk){if(r.tetk[tc]&1)C[tc]=1;if(r.tetk[tc]&2)Tz[tc]=1}}else(r.ol||[]).forEach(function(o){(o[5]||[]).forEach(function(l){if(l[2]>0){if(isC[l[0]])C[o[0]]=1;if(isT[l[0]])Tz[o[0]]=1}})});(r.covered.f1||[]).forEach(function(c){X[c]=1});(r.covered.f2||[]).forEach(function(c){V[c]=1});
     var L=(T.dai[r.pos]||[]).concat(T.vip[r.pos]||[],T.le[r.pos]||[]).map(function(c){var q=T.inf[c],o=MO[c];return{c:c,q:q,o:o,C:!!C[c],T:!!Tz[c],X:!!X[c],V:!!V[c]}});
     tot.n+=L.length;L.forEach(function(k){if(k.C)tot.c++;if(k.T)tot.t++;if(k.X)tot.x++;if(k.V)tot.v++});
     L=L.filter(function(k){return(g==='all'||(g==='1'&&k.q.g===1)||(g==='v3'&&k.q.g===2&&k.q.vip==='VIP3')||(g==='v5'&&k.q.g===2&&k.q.vip!=='VIP3')||(g==='3'&&k.q.g===3))&&(st==='all'||(st==='ok')===k.X)});
