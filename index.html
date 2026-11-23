@@ -3586,16 +3586,16 @@ function bcRep(r,ds){if(BCM.M!==M)BCM={M:M,c:{}};var key=r.pos+'|'+ds;if(BCM.c[k
   var HV={};if(STATE.hv&&STATE.hv.list)hvRows().forEach(function(x){if(x.pos===r.pos)HV[x.code]=1});
   var CB={};if(STATE.combo&&STATE.combo.list){var B=cbBase().map;for(var c in B){var m=B[c].mem;if(m.off===r.pos||m.nh===r.pos||m.on===r.pos)CB[c]=1}}
   var od=r.od||{},pcd=r.pcd||{},cbo=r.cbo2||{},daily=r.daily||{};
-  var dayOd=ds<=M.to?(od[ds]||[]):[],lkOd={};past.forEach(function(d){(od[d]||[]).forEach(function(c){lkOd[c]=1})});
+  var dayOd=ds<=M.to?(od[ds]||[]):[],lkOd={},allD={};[od,pcd,cbo,daily].forEach(function(o){for(var d in o)if(d<=ds&&d<=M.to)allD[d]=1});allD=Object.keys(allD);/* cộng dồn gồm cả ngày Chủ nhật/ngày nghỉ có phát sinh đơn */allD.forEach(function(d){(od[d]||[]).forEach(function(c){lkOd[c]=1})});
   var cnt=function(L,f){var n=0;L.forEach(function(c){if(f(c))n++});return n},keys=Object.keys(lkOd);
   var isCh=function(ch){return function(c){return CI[c]&&CI[c].ch===ch}};
-  var cbDay={};if(ds<=M.to)(cbo[ds]||[[],[]]).forEach(function(L){L.forEach(function(c){cbDay[c]=1})});var cbLk={};past.forEach(function(d){(cbo[d]||[[],[]]).forEach(function(L){L.forEach(function(c){cbLk[c]=1})})});
+  var cbDay={};if(ds<=M.to)(cbo[ds]||[[],[]]).forEach(function(L){L.forEach(function(c){cbDay[c]=1})});var cbLk={};allD.forEach(function(d){(cbo[d]||[[],[]]).forEach(function(L){L.forEach(function(c){cbLk[c]=1})})});
   var offR=0,onR=0;A.L.forEach(function(x){if(x.ch==='ON')onR++;else offR++});
-  var pv=ds<=M.to?(pcd[ds]||[0,0,0,0]):[0,0,0,0],pl=[0,0,0,0];past.forEach(function(d){var v=pcd[d];if(v)for(var i=0;i<4;i++)pl[i]+=v[i]});
+  var pv=ds<=M.to?(pcd[ds]||[0,0,0,0]):[0,0,0,0],pl=[0,0,0,0];allD.forEach(function(d){var v=pcd[d];if(v)for(var i=0;i<4;i++)pl[i]+=v[i]});
   var callLk=0;past.forEach(function(d){callLk+=dyData(d).by[r.pos].n});
   var VU={};past.forEach(function(d){dyData(d).by[r.pos].L.forEach(function(x){VU[x.code]=1})});var vis={n:0,h:0,c:0};for(var vc in VU){vis.n++;if(HV[vc])vis.h++;if(CB[vc])vis.c++}
   var callM=0;for(var cc in CI)callM+=+CI[cc].f||0;/* call tháng = tổng tần suất F các KH trong MCP (giống KPI PC) */
-  var lk=0;past.forEach(function(d){lk+=daily[d]||0});
+  var lk=0;allD.forEach(function(d){lk+=daily[d]||0});
   var o={has:ds<=M.to,
     to:{ctn:P.tgt/W,mtn:dyTg(r,P,ds),th:ds<=M.to?daily[ds]||0:0,lk:lk,ctlk:P.tgt/W*k,tgt:P.tgt},
     aof:{ct:offR,th:cnt(dayOd,isCh('OFF')),lk:cnt(keys,isCh('OFF')),tot:Object.keys(CI).filter(function(c){return CI[c].ch==='OFF'}).length},
